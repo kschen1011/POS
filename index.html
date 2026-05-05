@@ -467,14 +467,13 @@ function render(){
   else if(G.tab==="prod")body="<div class='page'>"+rProd(ap)+"</div>";
   else body="<div class='page'>"+rSet()+"</div>";
   var nav=[["pos","🧾","收銀"],["inv","📦","庫存"],["rep","📊","業績"],["prod","🍪","生產"],["set","⚙️","設定"]];
-  var navHtml="";
-  nav.forEach(function(n){
-    var cls="nb"+(G.tab===n[0]?" on":"");
-    navHtml+="<button class=\""+cls+"\" onclick=\"goTab('"+n[0]+"')\">";
-    navHtml+="<span class=\"nb-ic\">"+n[1]+"</span>";
-    navHtml+="<span class=\"nb-lb\">"+n[2]+"</span>";
-    navHtml+="</button>";
-  });
+  var navHtml=
+    "<button class='nb"+(G.tab==="pos"?" on":"")+"' onclick='goTab("pos")'><span class='nb-ic'>🧾</span><span class='nb-lb'>收銀</span></button>"+
+    "<button class='nb"+(G.tab==="inv"?" on":"")+"' onclick='goTab("inv")'><span class='nb-ic'>📦</span><span class='nb-lb'>庫存</span></button>"+
+    "<button class='nb"+(G.tab==="rep"?" on":"")+"' onclick='goTab("rep")'><span class='nb-ic'>📊</span><span class='nb-lb'>業績</span></button>"+
+    "<button class='nb"+(G.tab==="prod"?" on":"")+"' onclick='goTab("prod")'><span class='nb-ic'>🍪</span><span class='nb-lb'>生產</span></button>"+
+    "<button class='nb"+(G.tab==="set"?" on":"")+"' onclick='goTab("set")'><span class='nb-ic'>⚙️</span><span class='nb-lb'>設定</span></button>";
+
   el.innerHTML=
     "<div class='hdr'>"+
       "<div><div class='hdr-logo'>半吊子廚房</div><div class='hdr-sub'>THE HALF KITCHEN</div></div>"+
@@ -487,6 +486,15 @@ function goTab(t){
   if(G.tab==="set"&&t!=="set"){G.ep=null;G.em=null;G.es=null;G.sok=false;}
   G.tab=t;G.okMsg="";G.cfm=null;render();
 }
+
+function setRv(v){G.rv=v;render();}
+function setCfm(v){G.cfm=v;render();}
+function clearCfm(){G.cfm=null;render();}
+function setMvType(v){G.mvType=v;render();}
+function setMvDate(v){G.mvDate=this&&this.value?this.value:v;render();}
+function clearMvDate(){G.mvDate='';render();}
+function setSelM(v){G.selM=v;render();}
+
 
 /* ════ POS ════ */
 function rPOS(prods){
@@ -684,9 +692,9 @@ function doAdj(pid,sid){
 /* ════ Reports ════ */
 function rRep(){
   var h="<div class='tabs2'>";
-  h+="<button class='t2"+(G.rv==="today"?" on":"")+"' onclick="G.rv='today';render()">今日</button>";
-  h+="<button class='t2"+(G.rv==="month"?" on":"")+"' onclick="G.rv='month';render()">月報表</button>";
-  h+="<button class='t2"+(G.rv==="mov"?" on":"")+"' onclick="G.rv='mov';render()">進出庫</button>";
+  h+="<button class='t2"+(G.rv==="today"?" on":"")+"' onclick='setRv("today")'>今日</button>";
+  h+="<button class='t2"+(G.rv==="month"?" on":"")+"' onclick='setRv("month")'>月報表</button>";
+  h+="<button class='t2"+(G.rv==="mov"?" on":"")+"' onclick='setRv("mov")'>進出庫</button>";
   h+="</div>";
   if(G.rv==="today")h+=rToday();
   else if(G.rv==="month")h+=rMonth();
@@ -718,16 +726,16 @@ function rToday(){
   }
   if(G.cfm){
     if(G.cfm==="clearAll"){
-      h+="<div class='cfm-box'><div class='cfm-title'>確認清空今日記錄？</div><div class='cfm-detail'>將刪除今日 "+ts.length+" 筆交易並補回庫存，此操作無法復原。</div><div class='cfm-btns'><button class='cfm-no' onclick="G.cfm=null;render()">取消</button><button class='cfm-yes' onclick='doClearDay()'>確認清空</button></div></div>";
+      h+="<div class='cfm-box'><div class='cfm-title'>確認清空今日記錄？</div><div class='cfm-detail'>將刪除今日 "+ts.length+" 筆交易並補回庫存，此操作無法復原。</div><div class='cfm-btns'><button class='cfm-no' onclick='clearCfm()'>取消</button><button class='cfm-yes' onclick='doClearDay()'>確認清空</button></div></div>";
     } else {
       var found=null;var arr=G.sales[curYM()]||[];
       for(var i=0;i<arr.length;i++){if(arr[i].id===G.cfm){found=arr[i];break;}}
       if(found){
-        h+="<div class='cfm-box'><div class='cfm-title'>確認刪除此筆？</div><div class='cfm-detail'>🕐 "+found.time+"　NT$ "+found.total.toLocaleString()+(found.disc?" (折抵NT$"+found.disc+")")+"<br>"+found.items.map(function(i){return i.name+"×"+i.qty;}).join("、")+"<br><br>刪除後自動補回庫存。</div><div class='cfm-btns'><button class='cfm-no' onclick="G.cfm=null;render()">取消</button><button class='cfm-yes' onclick='doDelSale("+found.id+")'>確認刪除</button></div></div>";
+        h+="<div class='cfm-box'><div class='cfm-title'>確認刪除此筆？</div><div class='cfm-detail'>🕐 "+found.time+"　NT$ "+found.total.toLocaleString()+(found.disc?" (折抵NT$"+found.disc+")")+"<br>"+found.items.map(function(i){return i.name+"×"+i.qty;}).join("、")+"<br><br>刪除後自動補回庫存。</div><div class='cfm-btns'><button class='cfm-no' onclick='clearCfm()'>取消</button><button class='cfm-yes' onclick='doDelSale("+found.id+")'>確認刪除</button></div></div>";
       }
     }
   }
-  h+="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'><div class='sec' style='margin:0'>交易記錄</div>"+(ts.length>0?"<button class='clr-btn' onclick="G.cfm='clearAll';render()">清空今日</button>":"")+"</div>";
+  h+="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'><div class='sec' style='margin:0'>交易記錄</div>"+(ts.length>0?"<button class='clr-btn' onclick='setCfm("clearAll")'>清空今日</button>":"")+"</div>";
   h+="<div class='tx-list'>";
   if(ts.length===0){h+="<div class='empty'>今日尚無交易記錄</div>";}
   else{var rev=[...ts].reverse();rev.forEach(function(s){h+="<div class='tx'><div class='tx-inf'><div class='tx-t'>"+s.time+(s.discName?" · "+s.discName:"")+"</div><div class='tx-i'>"+s.items.map(function(i){return i.name+"×"+i.qty;}).join("、")+(s.disc?" · 折抵NT$"+s.disc:"")+"</div></div><div class='tx-v'>NT$ "+s.total.toLocaleString()+"</div><button class='tx-del' onclick='G.cfm="+s.id+";render()'>✕</button></div>";});}
@@ -761,7 +769,7 @@ function rMonth(){
   var totQ=rows.reduce(function(s,r){return s+r[1].qty;},0);
   var maxQ=rows.length?rows[0][1].qty:1;
   var totDisc=sales.reduce(function(s,x){return s+(x.disc||0);},0);
-  var h="<div class='mon-row'><select class='mon-sel' onchange="G.selM=this.value;render()">";
+  var h="<div class='mon-row'><select class='mon-sel' onchange='setSelM(this.value)'>";
   months.forEach(function(m){h+="<option value='"+m+"'"+(m===G.selM?" selected":"")+">"+ymLabel(m)+"</option>";});
   h+="</select><button class='csv-btn' onclick='expCSV()'>↓ CSV</button></div>";
   h+="<div class='stats'><div class='s-card'><div class='s-lbl'>月營業額</div><div class='s-val'>NT$ "+totR.toLocaleString()+"</div></div><div class='s-card'><div class='s-lbl'>月銷售量</div><div class='s-val'>"+totQ+"罐</div></div><div class='s-card'><div class='s-lbl'>月折扣</div><div class='s-val'>NT$ "+totDisc.toLocaleString()+"</div></div></div>";
@@ -795,12 +803,12 @@ function rMov(){
   var outTot=G.mvs.filter(function(m){return m.type==="out";}).reduce(function(s,m){return s+m.qty;},0);
   var adjCnt=G.mvs.filter(function(m){return m.type==="adj";}).length;
   var h="<div class='mv-filt'><span class='mv-filt-lbl'>篩選</span>";
-  h+="<button class='filt-btn"+(!G.mvType||G.mvType==="all"?" on":"")+"' onclick="G.mvType='all';render()">全部</button>";
-  h+="<button class='filt-btn"+(G.mvType==="in"?" in-on":"")+"' onclick="G.mvType='in';render()">進庫</button>";
-  h+="<button class='filt-btn"+(G.mvType==="out"?" out-on":"")+"' onclick="G.mvType='out';render()">出庫</button>";
-  h+="<button class='filt-btn"+(G.mvType==="adj"?" adj-on":"")+"' onclick="G.mvType='adj';render()">人工調整</button>";
-  h+="<input class='filt-date' type='date' value='"+(G.mvDate||"")+"' onchange="G.mvDate=this.value;render()">";
-  if(G.mvDate)h+="<button class='filt-btn' onclick="G.mvDate='';render()">清除</button>";
+  h+="<button class='filt-btn"+(!G.mvType||G.mvType==="all"?" on":"")+"' onclick='setMvType("all")'>全部</button>";
+  h+="<button class='filt-btn"+(G.mvType==="in"?" in-on":"")+"' onclick='setMvType("in")'>進庫</button>";
+  h+="<button class='filt-btn"+(G.mvType==="out"?" out-on":"")+"' onclick='setMvType("out")'>出庫</button>";
+  h+="<button class='filt-btn"+(G.mvType==="adj"?" adj-on":"")+"' onclick='setMvType("adj")'>人工調整</button>";
+  h+="<input class='filt-date' type='date' value='"+(G.mvDate||"")+"' onchange='setMvDate(this.value)'>";
+  if(G.mvDate)h+="<button class='filt-btn' onclick='clearMvDate()'>清除</button>";
   h+="</div>";
   h+="<div class='stats'><div class='s-card'><div class='s-lbl'>進庫合計</div><div class='s-val' style='color:#2A7A2A'>+"+inTot+"</div><div class='s-sub'>罐</div></div><div class='s-card'><div class='s-lbl'>出庫合計</div><div class='s-val' style='color:#C03020'>-"+outTot+"</div><div class='s-sub'>罐</div></div><div class='s-card'><div class='s-lbl'>人工調整</div><div class='s-val' style='color:#C07040'>"+adjCnt+"</div><div class='s-sub'>筆</div></div></div>";
   h+="<div class='tx-list'>";
