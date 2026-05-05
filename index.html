@@ -197,6 +197,73 @@ body{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;background:#F7F3
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:#9A8070;font-size:14px}
 .spinner{width:32px;height:32px;border:3px solid #E5D9CF;border-top-color:#C07040;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.amt-panel{background:#FFF8F0;border-top:1px solid #F0D8C0;padding:8px 12px;flex-shrink:0}
+.amt-title{font-size:11px;font-weight:700;color:#9A8070;margin-bottom:6px;text-transform:uppercase}
+.amt-quick{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.aq{padding:6px 11px;border:1px solid #C07040;border-radius:999px;background:none;color:#C07040;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.aq.sel{background:#C07040;color:#FFF}
+.amt-inp{flex:1;padding:8px 12px;border:1.5px solid #C07040;border-radius:10px;font-size:18px;font-weight:700;font-family:inherit;background:#FFF;color:#1E1512;text-align:right}
+.amt-inp:focus{outline:none}
+.edit-amt-btn{padding:8px 10px;border:1.5px solid #C07040;border-radius:10px;background:none;color:#C07040;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.edit-amt-btn.on{background:#C07040;color:#FFF}
+.edit-amt-btn:disabled{border-color:#D5C9BF;color:#AFA090}
+.co-orig{font-size:11px;color:#AFA090;text-decoration:line-through;margin-left:4px}
+.co-cus{font-size:11px;background:#E8F5E8;color:#2A7A2A;padding:2px 6px;border-radius:999px;font-weight:700;margin-left:4px}
+.exp-banner{background:#FFF0EE;border:1.5px solid #FFAAAA;border-radius:14px;padding:14px;margin-bottom:12px}
+.exp-banner-title{font-size:13px;font-weight:700;color:#C03020;margin-bottom:8px}
+.exp-it{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:.5px solid #FFD0C8}
+.exp-it:last-child{border-bottom:none}
+.exp-nm{font-size:13px;font-weight:700}
+.exp-detail{font-size:12px;color:#C03020;font-weight:600}
+.exp-days{font-size:11px;background:#FFEEEE;color:#C03020;padding:2px 7px;border-radius:999px;font-weight:700;margin-left:6px}
+.exp-msg{font-size:12px;color:#C07040;margin-top:8px;font-style:italic;line-height:1.6}
+.in-btn{padding:5px 10px;border:1px solid #2A7A2A;border-radius:999px;background:none;color:#2A7A2A;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.adj-btn{padding:5px 10px;border:1px solid #C07040;border-radius:999px;background:none;color:#C07040;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.in-form{background:#F0FAF0;border:1px solid #A0D0A0;border-radius:10px;padding:12px;margin-top:8px}
+.in-form-t{font-size:12px;font-weight:700;color:#2A7A2A;margin-bottom:10px}
+.in-lbl{font-size:11px;color:#9A8070;font-weight:700;display:block;margin-bottom:5px;text-transform:uppercase}
+.in-qty-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.iqb{width:36px;height:36px;border-radius:10px;border:1.5px solid #2A7A2A;background:#FFF;color:#2A7A2A;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.iqb.w{width:auto;padding:0 10px;font-size:13px}
+.iq-val{font-size:22px;font-weight:700;min-width:44px;text-align:center}
+.in-date{width:100%;padding:10px;border:1.5px solid #D5C9BF;border-radius:10px;font-size:14px;font-family:inherit;background:#FFF;color:#1E1512;margin-bottom:10px}
+.in-date:focus{outline:none;border-color:#2A7A2A}
+.form-btns{display:flex;gap:8px}
+.f-ok{flex:2;padding:11px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#FFF}
+.f-ok.g{background:#2A7A2A}
+.f-ok.a{background:#C07040}
+.f-ok:disabled{opacity:.4}
+.f-cancel{flex:1;padding:11px;background:none;border:1px solid #D5C9BF;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#7A6050}
+.b-list{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.b-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:#F7F3EE;font-size:12px}
+.b-item.old{background:#FFEEEE;border:1px solid #FFB0B0}
+.b-date{color:#7A6050;font-weight:600;flex:1}
+.b-qty{font-weight:700}
+.b-ok{font-size:10px;color:#2A7A2A;background:#E8F5E8;padding:1px 6px;border-radius:999px}
+.b-er{font-size:10px;color:#C03020;background:#FFEEEE;padding:1px 6px;border-radius:999px}
+.adj-form{background:#FFF8E8;border:1px solid #E0C040;border-radius:10px;padding:12px;margin-top:8px}
+.adj-form-t{font-size:12px;font-weight:700;color:#7A5000;margin-bottom:10px}
+.adj-qty-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.aqb{width:36px;height:36px;border-radius:10px;border:1.5px solid #C07040;background:#FFF;color:#C07040;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.aqb.w{width:auto;padding:0 10px;font-size:13px}
+.aq-val{font-size:20px;font-weight:700;min-width:44px;text-align:center}
+.aq-pos{color:#2A7A2A}
+.aq-neg{color:#C03020}
+.adj-note{width:100%;padding:10px;border:1.5px solid #D5C9BF;border-radius:10px;font-size:14px;font-family:inherit;background:#FFF;color:#1E1512;margin-bottom:10px}
+.adj-note:focus{outline:none;border-color:#C07040}
+.mv-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;flex-shrink:0}
+.mv-in{background:#E8F5E8;color:#2A7A2A}
+.mv-out{background:#FFEEEE;color:#C03020}
+.mv-adj{background:#FFF0D0;color:#8A5000}
+.mv-filt{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filt-lbl{font-size:11px;font-weight:700;color:#9A8070}
+.fb{padding:6px 11px;border:1px solid #D5C9BF;border-radius:999px;background:#FFF;color:#7A6050;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.fb.on{background:#1E1512;color:#FFF;border-color:#1E1512}
+.fb.in-on{background:#2A7A2A;color:#FFF;border-color:#2A7A2A}
+.fb.out-on{background:#C03020;color:#FFF;border-color:#C03020}
+.fb.adj-on{background:#C07040;color:#FFF;border-color:#C07040}
+.filt-date{padding:6px 10px;border:1px solid #D5C9BF;border-radius:8px;font-size:13px;font-family:inherit;background:#FFF;color:#1E1512}
 </style>
 </head>
 <body>
@@ -211,22 +278,33 @@ const DM=[{id:1,name:'奶油',unit:'kg',stock:5.0,min:2.0},{id:2,name:'低筋麵
 const DS=[{id:1,pid:1,name:'招牌鹹蛋雪球',stock:20},{id:2,pid:2,name:'經典原味雪球',stock:20},{id:3,pid:3,name:'酸奶洋蔥雪球',stock:15},{id:4,pid:4,name:'桂花烏龍茶雪球',stock:15},{id:5,pid:5,name:'伯爵茶雪球',stock:15},{id:6,pid:6,name:'包心巧克力雪球',stock:15},{id:7,pid:7,name:'可可2.0雪球',stock:15},{id:8,pid:8,name:'莓果雪球',stock:10},{id:9,pid:9,name:'海鹽焦糖雪球',stock:10},{id:10,pid:10,name:'綜合雪球禮盒',stock:5}];
 const BOM={1:{1:0.109,2:0.255,3:0.010,5:0.058,8:0.085},2:{1:0.148,2:0.144,3:0.039,4:0.073,5:0.058,6:0.051,7:0.002},3:{1:0.064,2:0.084,3:0.032,4:0.049,5:0.024,7:0.001,11:0.005},4:{1:0.063,2:0.084,3:0.031,4:0.049,7:0.001,10:0.006},5:{1:0.060,2:0.080,3:0.025,4:0.047,7:0.001,9:0.007},6:{},7:{1:0.063,2:0.084,3:0.030,4:0.046,5:0.024,7:0.001,12:0.007},8:{1:0.099,2:0.098,3:0.032,4:0.029,5:0.046,6:0.050,13:0.005},9:{1:0.046,2:0.057,3:0.018,4:0.033,7:0.001,14:0.008,15:0.019},10:{}};
 const cp=o=>JSON.parse(JSON.stringify(o));
-let S={tab:'pos',rv:'today',prods:null,mats:null,stks:null,sm:{},am:[],cart:[],plan:{},okMsg:null,cfm:null,selM:null,conn:false,il:false,sl:false,pl:false,ep:null,em:null,es:null,sok:false};
+let S={tab:'pos',rv:'today',prods:null,mats:null,stks:null,batches:{},mvs:[],sm:{},am:[],cart:[],showAmt:false,customAmt:null,inForm:{},inQty:{},adjForm:{},adjQty:{},plan:{},okMsg:null,lastNote:'',cfm:null,selM:null,mvType:'all',mvDate:'',conn:false,il:false,sl:false,pl:false,bl:false,ml:false,ep:null,em:null,es:null,sok:false};
 function td(){return new Date().toLocaleDateString('zh-TW')}
 function tn(){return new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}
 function cym(){const d=new Date();return`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}`}
 function yml(y){return`${y.slice(0,4)}年${parseInt(y.slice(4))}月`}
+function daysDiff(ds){return Math.floor((Date.now()-new Date(ds))/864e5);}
+function expiredItems(){const r=[];S.stks.forEach(stk=>{(S.batches[stk.pid]||[]).filter(b=>b.qty>0&&daysDiff(b.prodDate)>10).forEach(b=>r.push({name:stk.name,qty:b.qty,days:daysDiff(b.prodDate),pid:stk.pid}));});return r.sort((a,b)=>b.days-a.days);}
+function calcAmt(){const sub=S.cart.reduce((s,i)=>s+i.price*i.qty,0);if(S.showAmt&&S.customAmt!==null){const cv=parseInt(S.customAmt)||0;return{sub,total:cv,disc:sub-cv,custom:true};}return{sub,total:sub,disc:0,custom:false};}
+function setMvType(v){S.mvType=v;render();}
+function setMvDate(v){S.mvDate=v;render();}
+function clearMvDate(){S.mvDate='';render();}
+
 function tsl(){return(S.sm[cym()]||[]).filter(x=>x.date===td())}
 function ams(){return[...new Set([...S.am,cym()])].sort().reverse()}
 function nid(a){return a.length?Math.max(...a.map(x=>x.id))+1:1}
+function sBatch(){DB.collection('pos').doc('batches').set({batches:S.batches,updatedAt:TS()}).catch(console.error)}
+function sMov(){DB.collection('pos').doc('movements').set({mvs:S.mvs,updatedAt:TS()}).catch(console.error)}
 function sInv(){DB.collection('pos').doc('inventory').set({mats:S.mats,stks:S.stks,updatedAt:TS()}).catch(console.error)}
 function sProd(){DB.collection('pos').doc('products').set({prods:S.prods,updatedAt:TS()}).catch(console.error)}
 function sSales(ym){DB.collection('pos').doc('sales_'+ym).set({items:S.sm[ym]||[],updatedAt:TS()}).catch(console.error);if(!S.am.includes(ym)){const m=[...new Set([...S.am,ym])].sort();DB.collection('pos').doc('meta').set({months:m}).catch(console.error);}}
 async function lMonth(ym){if(S.sm[ym]!==undefined)return;const d=await DB.collection('pos').doc('sales_'+ym).get().catch(()=>null);S.sm[ym]=d&&d.exists?(d.data().items||[]):[];render();}
-function tr(){if(S.il&&S.sl&&S.pl)render();}
+function tr(){if(S.il&&S.sl&&S.pl&&S.bl&&S.ml)render();}
 function setup(){
   DB.collection('pos').doc('products').onSnapshot(d=>{S.prods=d.exists?(d.data().prods||cp(DP)):cp(DP);if(!d.exists)sProd();S.pl=true;tr();});
   DB.collection('pos').doc('inventory').onSnapshot(d=>{if(d.exists){const x=d.data();S.mats=x.mats;S.stks=x.stks;}else{S.mats=cp(DM);S.stks=cp(DS);sInv();}S.conn=true;S.il=true;tr();},()=>{document.getElementById('app').innerHTML='<div style="padding:40px;text-align:center;color:#C03020">無法連接雲端，請確認網路</div>';});
+  DB.collection('pos').doc('batches').onSnapshot(d=>{S.batches=d.exists?(d.data().batches||{}):{};S.bl=true;tr();});
+  DB.collection('pos').doc('movements').onSnapshot(d=>{S.mvs=d.exists?(d.data().mvs||[]):[];S.ml=true;tr();});
   DB.collection('pos').doc('sales_'+cym()).onSnapshot(d=>{S.sm[cym()]=d.exists?(d.data().items||[]):[];S.sl=true;tr();});
   DB.collection('pos').doc('meta').onSnapshot(d=>{S.am=d.exists?(d.data().months||[]):[];if(!S.selM)S.selM=cym();render();});
 }
@@ -235,13 +313,13 @@ function render(){
   const el=document.getElementById('app');if(!el)return;
   if(!S.il||!S.sl||!S.pl){el.innerHTML='<div class="loading"><div class="spinner"></div>載入中...</div>';return;}
   const ap=S.prods.filter(p=>p.enabled!==false);
-  const ls=S.stks.filter(x=>x.stock<=5).length,lm=S.mats.filter(x=>x.stock<=x.min).length;
-  const tot=S.cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const ls=S.stks.filter(x=>x.stock<=5).length,lm=S.mats.filter(x=>x.stock<=x.min).length,le=expiredItems().length;
+  const {sub:amtSub,total:tot,disc:amtDisc,custom:amtCustom}=calcAmt();
   const totalQty=S.cart.reduce((s,i)=>s+i.qty,0);
   el.innerHTML=`
 <div class="hdr">
   <div><div class="hdr-logo">半吊子廚房</div><div class="hdr-sub">THE HALF KITCHEN</div></div>
-  <div class="hdr-r"><span class="sync-dot${S.conn?'':' off'}"></span>${ls>0?`<span class="chip chip-w">成品偏低${ls}</span>`:''}${lm>0?`<span class="chip chip-d">材料不足${lm}</span>`:''}</div>
+  <div class="hdr-r"><span class="sync-dot${S.conn?'':' off'}"></span>${ls>0?`<span class="chip chip-w">成品偏低${ls}</span>`:''}${lm>0?`<span class="chip chip-d">材料不足${lm}</span>`:''}${le>0?`<span class="chip" style="background:#4A1010;color:#FFB0B0">快過期${le}</span>`:''}</div>
 </div>
 <div class="main">${S.tab==='pos'?rPOS(ap,tot,totalQty):`<div class="scroll-page">${S.tab==='inv'?rInv():S.tab==='rep'?rRep():S.tab==='prod'?rProd(ap):rSet()}</div>`}</div>
 <nav class="nav">${[['pos','🧾','收銀'],['inv','📦','庫存'],['rep','📊','業績'],['prod','🍪','生產'],['set','⚙️','設定']].map(([id,ic,lb])=>`<button class="nb${S.tab===id?' on':''}" onclick="T('${id}')"><span class="nb-icon">${ic}</span><span class="nb-label">${lb}</span></button>`).join('')}</nav>`;
@@ -270,20 +348,70 @@ function rPOS(prods,tot,totalQty){
       <div class="ci-s">NT$ ${(i.price*i.qty).toLocaleString()}</div>
     </div>`).join('')}
   </div>
+  ${S.showAmt?`<div class="amt-panel"><div class="amt-title">自訂結帳金額</div><div class="amt-quick">${totalQty>0?`<button class="aq${S.customAmt===amtSub-totalQty*10?' sel':''}" onclick="setAmt(${amtSub-totalQty*10})">員工識別證（每罐-NT$10=-${totalQty*10}）</button>`:''}<button class="aq${S.customAmt===0?' sel':''}" onclick="setAmt(0)">公關出貨（NT$0）</button><button class="aq${S.customAmt===amtSub?' sel':''}" onclick="setAmt(${amtSub})">恢復原價</button></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:#9A8070">NT$</span><input class="amt-inp" type="number" inputmode="numeric" value="${S.customAmt!==null?S.customAmt:amtSub}" oninput="S.customAmt=parseInt(this.value)||0;render()"><button class="f-cancel" onclick="clearAmt()">取消</button></div><div style="font-size:11px;color:#9A8070;margin-top:5px">原價 NT$ ${amtSub.toLocaleString()}${amtDisc>0?' 省 NT$ '+amtDisc.toLocaleString():''}</div></div>`:''}
   <div class="checkout-bar">
     <div class="cart-summary">
       <div class="cart-count">${totalQty>0?`共 ${totalQty} 項`:'點擊商品加入'}</div>
-      <div class="cart-total">NT$ ${tot.toLocaleString()}</div>
+      <div class="cart-total">NT$ ${tot.toLocaleString()}</div>${amtCustom?`<span class="co-cus">自訂</span>`:''}
     </div>
+    <button class="edit-amt-btn${S.showAmt?' on':''}" onclick="toggleAmt()" ${S.cart.length===0?'disabled':''}>✏️ 改金額</button>
     <button class="co-btn" onclick="CO()" ${S.cart.length===0?'disabled':''}>結帳</button>
   </div>
 </div>
 </div>`;
 }
 
-function rInv(){return`<div class="inv-card"><div class="inv-sec-hdr"><span>成品庫存（罐）</span></div>${S.stks.map(s=>`<div class="inv-row"><div class="inv-info"><div class="inv-n">${s.name}</div><div class="inv-u">罐</div></div><div class="inv-s ${s.stock<=3?'c-er':s.stock<=8?'c-wa':'c-ok'}">${s.stock}</div><div class="sc"><button class="sb" onclick="US(${s.id},-1)">−</button><button class="sb" onclick="US(${s.id},1)">+</button></div></div>`).join('')}</div><div class="inv-card"><div class="inv-sec-hdr"><span>原料庫存</span></div>${S.mats.map(m=>`<div class="inv-row"><div class="inv-info"><div class="inv-n">${m.name}</div><div class="inv-u">${m.unit}，下限 ${m.min}</div></div><div class="inv-s ${m.stock<=m.min?'c-er':m.stock<=m.min*1.5?'c-wa':'c-ok'}">${m.stock}</div><div class="sc"><button class="sb" onclick="UM(${m.id},-0.1)">−</button><button class="sb" onclick="UM(${m.id},0.1)">+</button></div></div>`).join('')}</div><p class="note">原料調整單位 ±0.1 kg／次</p>`;}
-
-function rRep(){return`<div class="sub-tabs"><button class="stb${S.rv==='today'?' on':''}" onclick="S.rv='today';render()">今日記錄</button><button class="stb${S.rv==='month'?' on':''}" onclick="S.rv='month';render()">月報表</button></div>${S.rv==='today'?rToday():rMonth()}`;}
+function rInv(){
+const expItems=expiredItems();
+const banner=expItems.length>0?`<div class="exp-banner"><div class="exp-banner-title">⚠ 以下商品已超過 10 天，請加速銷售！</div>${expItems.map(e=>`<div class="exp-it"><span class="exp-nm">${e.name}</span><span class="exp-detail">${e.qty}罐<span class="exp-days">已${e.days}天</span></span></div>`).join('')}<div class="exp-msg">🎯 請優先向顧客推薦這些口味！</div></div>`:'';
+return banner+`<div class="inv-card"><div class="inv-sec-hdr"><span>成品庫存（罐）</span></div>${S.stks.map(s=>{
+  const pid=s.pid;
+  const bs=(S.batches[pid]||[]).filter(b=>b.qty>0).sort((a,b)=>new Date(a.prodDate)-new Date(b.prodDate));
+  const showIn=S.inForm[pid];const showAdj=S.adjForm[pid];
+  const iq=S.inQty[pid]||0;const aq=S.adjQty[pid]||0;
+  return`<div class="inv-row">
+<div style="display:flex;align-items:center;gap:6px">
+  <div class="inv-info"><div class="inv-n">${s.name}</div><div class="inv-u">罐</div></div>
+  <div class="inv-s ${s.stock<=3?'c-er':s.stock<=8?'c-wa':'c-ok'}">${s.stock}</div>
+  <div class="sc"><button class="sb" onclick="US(${s.id},-1)">−</button><button class="sb" onclick="US(${s.id},1)">+</button></div>
+  <button class="in-btn" onclick="togIn(${pid})">進貨</button>
+  <button class="adj-btn" onclick="togAdj(${pid})">調整</button>
+</div>
+${showAdj?`<div class="adj-form"><div class="adj-form-t">人工調整（正數補庫存，負數扣庫存）</div>
+<div class="adj-qty-row">
+  <button class="aqb w" onclick="chgAdj(${pid},-5)">-5</button>
+  <button class="aqb" onclick="chgAdj(${pid},-1)">−</button>
+  <span class="aq-val ${aq>0?'aq-pos':aq<0?'aq-neg'}">${aq>0?'+':''}${aq}</span>
+  <button class="aqb" onclick="chgAdj(${pid},1)">+</button>
+  <button class="aqb w" onclick="chgAdj(${pid},5)">+5</button>
+</div>
+<div class="in-lbl">調整原因（必填）</div>
+<input class="adj-note" id="adjNote_${pid}" type="text" placeholder="例：進貨誤植、盤點修正...">
+<div class="form-btns">
+  <button class="f-cancel" onclick="cancelAdj(${pid})">取消</button>
+  <button class="f-ok a" onclick="doAdj(${pid},${s.id})" ${aq===0?'disabled style="opacity:.4"':''}>確認調整 ${aq!==0?`（${aq>0?'+':''}${aq}罐）`:''}</button>
+</div></div>`:''}
+${showIn?`<div class="in-form"><div class="in-form-t">新增進貨批次</div>
+<label class="in-lbl">進貨罐數</label>
+<div class="in-qty-row">
+  <button class="iqb" onclick="chgIn(${pid},-1)">−</button>
+  <span class="iq-val">${iq}</span>
+  <button class="iqb" onclick="chgIn(${pid},1)">+</button>
+  <button class="iqb w" onclick="chgIn(${pid},5)">+5</button>
+  <button class="iqb w" onclick="chgIn(${pid},10)">+10</button>
+</div>
+<label class="in-lbl">製作日期</label>
+<input class="in-date" type="date" id="inDate_${pid}" value="${new Date().toISOString().slice(0,10)}">
+<div class="form-btns">
+  <button class="f-cancel" onclick="cancelIn(${pid})">取消</button>
+  <button class="f-ok g" onclick="doIn(${pid},${s.id})" ${iq<=0?'disabled style="opacity:.4"':''}>確認進貨 ${iq>0?`（${iq}罐）`:''}</button>
+</div></div>`:''}
+${bs.length>0?`<div class="b-list">${bs.map(b=>{const age=daysDiff(b.prodDate);const exp=age>10;return`<div class="b-item${exp?' old':''}"><span class="b-date">製作：${b.prodDate}</span><span class="b-qty">${b.qty}罐</span><span class="${exp?'b-er':'b-ok'}">${age}天${exp?' ⚠':' ✓'}</span></div>`;}).join('')}</div>`:''}
+</div>`;
+}).join('')}</div>
+<div class="inv-card"><div class="inv-sec-hdr"><span>原料庫存</span></div>${S.mats.map(m=>`<div class="inv-row"><div class="inv-info"><div class="inv-n">${m.name}</div><div class="inv-u">${m.unit}，下限 ${m.min}</div></div><div class="inv-s ${m.stock<=m.min?'c-er':m.stock<=m.min*1.5?'c-wa':'c-ok'}">${m.stock}</div><div class="sc"><button class="sb" onclick="UM(${m.id},-0.1)">−</button><button class="sb" onclick="UM(${m.id},0.1)">+</button></div></div>`).join('')}</div><p class="note">原料調整單位 ±0.1 kg／次</p>`;
+}
+function rRep(){return`<div class="sub-tabs"><button class="stb${S.rv==='today'?' on':''}" onclick="S.rv='today';render()">今日</button><button class="stb${S.rv==='month'?' on':''}" onclick="S.rv='month';render()">月報表</button><button class="stb${S.rv==='mov'?' on':''}" onclick="S.rv='mov';render()">進出庫</button></div>${S.rv==='today'?rToday():S.rv==='month'?rMonth():rMov()}`;}
 
 function rToday(){
   const ts=tsl(),tot=ts.reduce((s,x)=>s+x.total,0),avg=ts.length?Math.round(tot/ts.length):0;
@@ -301,6 +429,34 @@ function rMonth(){
   const totR=rows.reduce((s,r)=>s+r[1].rev,0),totQ=rows.reduce((s,r)=>s+r[1].qty,0);
   const maxQ=rows.length?Math.max(...rows.map(r=>r[1].qty)):1;
   return`<div class="month-row"><select class="month-sel" onchange="S.selM=this.value;render()">${months.map(m=>`<option value="${m}"${m===S.selM?' selected':''}>${yml(m)}</option>`).join('')}</select><button class="export-btn" onclick="expCSV()">↓ CSV</button></div><div class="sr" style="grid-template-columns:1fr 1fr"><div class="sc2"><div class="sc2-l">月營業額</div><div class="sc2-v">NT$ ${totR.toLocaleString()}</div></div><div class="sc2"><div class="sc2-l">月銷售量</div><div class="sc2-v">${totQ} 罐</div></div></div>${rows.length===0?`<div class="hint">此月份尚無記錄</div>`:`<div class="sec">銷售排行</div><div class="bar-wrap">${rows.map(([n,d])=>`<div class="bar-row"><div class="bar-lbl">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.qty/maxQ*100)}%"></div></div><div class="bar-val">${d.qty}</div></div>`).join('')}</div><div class="m-table"><div class="m-hdr"><span>品項</span><span>數量</span><span>營業額</span></div>${rows.map(([n,d])=>`<div class="m-row"><span class="m-name">${n}</span><span>${d.qty}罐</span><span>NT$ ${d.rev.toLocaleString()}</span></div>`).join('')}<div class="m-row tot"><span style="font-weight:700">合計</span><span style="font-weight:700">${totQ}罐</span><span style="font-weight:700">NT$ ${totR.toLocaleString()}</span></div></div>`}`;
+}
+
+function rMov(){
+  let mvs=[...S.mvs].sort((a,b)=>b.id-a.id);
+  if(S.mvType!=='all')mvs=mvs.filter(m=>m.type===S.mvType);
+  if(S.mvDate)mvs=mvs.filter(m=>m.date===new Date(S.mvDate).toLocaleDateString('zh-TW'));
+  const inTot=S.mvs.filter(m=>m.type==='in').reduce((s,m)=>s+m.qty,0);
+  const outTot=S.mvs.filter(m=>m.type==='out').reduce((s,m)=>s+m.qty,0);
+  const adjCnt=S.mvs.filter(m=>m.type==='adj').length;
+  return`<div class="mv-filt">
+<span class="filt-lbl">篩選</span>
+<button class="fb${S.mvType==='all'?' on':''}" onclick="setMvType('all')">全部</button>
+<button class="fb${S.mvType==='in'?' in-on':''}" onclick="setMvType('in')">進庫</button>
+<button class="fb${S.mvType==='out'?' out-on':''}" onclick="setMvType('out')">出庫</button>
+<button class="fb${S.mvType==='adj'?' adj-on':''}" onclick="setMvType('adj')">人工調整</button>
+<input class="filt-date" type="date" value="${S.mvDate||''}" onchange="setMvDate(this.value)">
+${S.mvDate?`<button class="fb" onclick="clearMvDate()">清除</button>`:''}
+</div>
+<div class="sr" style="grid-template-columns:repeat(3,1fr)">
+<div class="sc2"><div class="sc2-l">進庫合計</div><div class="sc2-v" style="color:#2A7A2A">+${inTot}</div><div class="sc2-s">罐</div></div>
+<div class="sc2"><div class="sc2-l">出庫合計</div><div class="sc2-v" style="color:#C03020">-${outTot}</div><div class="sc2-s">罐</div></div>
+<div class="sc2"><div class="sc2-l">人工調整</div><div class="sc2-v" style="color:#C07040">${adjCnt}</div><div class="sc2-s">筆</div></div>
+</div>
+<div class="tx-list">${mvs.length===0?'<div style="padding:24px;text-align:center;font-size:13px;color:#AFA090">尚無記錄</div>':mvs.map(m=>`<div class="tx">
+<span class="mv-badge ${m.type==='in'?'mv-in':m.type==='adj'?'mv-adj':'mv-out'}">${m.type==='in'?'進庫':m.type==='adj'?'人工調整':'出庫'}</span>
+<div class="tx-info" style="margin-left:8px"><div style="font-size:12px;color:#7A6050;font-weight:700">${m.name}</div><div style="font-size:11px;color:#AFA090;margin-top:2px">${m.date} ${m.time}${m.type==='in'?' · 製作 '+m.prodDate:''}${m.note?' · '+m.note:''}</div></div>
+<div style="font-size:14px;font-weight:700;color:${m.type==='in'?'#2A7A2A':m.type==='adj'?'#C07040':'#C03020'}">${m.type==='in'?'+':m.type==='adj'?(m.adjDir||''):'−'}${m.qty}</div>
+</div>`).join('')}</div>`;
 }
 
 function rProd(prods){
@@ -330,13 +486,66 @@ function expCSV(){const sales=S.sm[S.selM]||[];const byP={};sales.forEach(s=>s.i
 function T(t){if(S.tab==='set'&&t!=='set'){S.ep=null;S.em=null;S.es=null;S.sok=false;}S.tab=t;S.okMsg=null;S.cfm=null;render();}
 function AC(pid){const p=S.prods.find(x=>x.id===pid);if(!p)return;const ex=S.cart.find(i=>i.id===pid);if(ex)S.cart=S.cart.map(i=>i.id===pid?{...i,qty:i.qty+1}:i);else S.cart=[...S.cart,{id:p.id,name:p.name,price:p.price,qty:1}];S.okMsg=null;render();}
 function UC(id,d){S.cart=S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0);render();}
-function CO(){if(!S.cart.length)return;const tot=S.cart.reduce((s,i)=>s+i.price*i.qty,0);const ym=cym();const sale={id:Date.now(),date:td(),time:tn(),items:S.cart.map(i=>({...i})),total:tot};if(!S.sm[ym])S.sm[ym]=[];S.sm[ym]=[...S.sm[ym],sale];S.stks=S.stks.map(s=>{const c=S.cart.find(x=>x.id===s.pid);return c?{...s,stock:Math.max(0,s.stock-c.qty)}:s});S.okMsg=tot.toLocaleString();S.cart=[];sInv();sSales(ym);render();}
+function CO(){if(!S.cart.length)return;
+const {sub,total,disc,custom}=calcAmt();
+const note=custom?`自訂金額(原NT${sub})`:''; 
+const ym=cym();
+const sale={id:Date.now(),date:td(),time:tn(),items:S.cart.map(i=>({...i})),total,sub,disc:disc||0,discName:note};
+if(!S.sm[ym])S.sm[ym]=[];
+S.sm[ym]=[...S.sm[ym],sale];
+S.cart.forEach(ci=>{
+  let rem=ci.qty;const pid=ci.id;
+  const bs=(S.batches[pid]||[]).sort((a,b)=>new Date(a.prodDate)-new Date(b.prodDate));
+  bs.forEach(b=>{if(rem<=0)return;const t=Math.min(b.qty,rem);b.qty-=t;rem-=t;});
+  S.batches[pid]=bs;
+  S.stks=S.stks.map(s=>s.pid===pid?{...s,stock:Math.max(0,s.stock-ci.qty)}:s);
+  S.mvs.push({id:Date.now()+Math.random(),type:'out',pid,name:ci.name,qty:ci.qty,date:td(),time:tn(),note});
+});
+S.okMsg=total.toLocaleString();S.lastNote=note;
+S.cart=[];S.showAmt=false;S.customAmt=null;
+sBatch();sMov();sInv();sSales(ym);render();}
 function US(id,d){S.stks=S.stks.map(s=>s.id===id?{...s,stock:Math.max(0,s.stock+d)}:s);sInv();render();}
 function UM(id,d){S.mats=S.mats.map(m=>m.id===id?{...m,stock:Math.max(0,parseFloat((m.stock+d).toFixed(3)))}:m);sInv();render();}
 function UP(pid,v){S.plan={...S.plan,[pid]:Math.max(0,parseInt(v)||0)};render();}
 function PD(){const req={};Object.entries(S.plan).forEach(([pid,qty])=>{if(!qty||qty<=0)return;Object.entries(BOM[pid]||{}).forEach(([mid,per])=>{req[mid]=(req[mid]||0)+per*qty});});S.mats=S.mats.map(m=>{const n=req[m.id]||0;return{...m,stock:parseFloat((m.stock-n).toFixed(3))};});S.stks=S.stks.map(s=>{const q=S.plan[s.pid]||0;return{...s,stock:s.stock+q};});S.plan={};sInv();render();}
 function doDel(id){const ym=cym();const sale=(S.sm[ym]||[]).find(x=>x.id===id);if(sale){S.stks=S.stks.map(sk=>{const item=sale.items.find(i=>i.id===sk.pid);return item?{...sk,stock:sk.stock+item.qty}:sk});S.sm[ym]=S.sm[ym].filter(x=>x.id!==id);}S.cfm=null;sInv();sSales(ym);render();}
 function doClear(){const ym=cym(),ts=tsl();ts.forEach(sale=>{S.stks=S.stks.map(sk=>{const item=sale.items.find(i=>i.id===sk.pid);return item?{...sk,stock:sk.stock+item.qty}:sk});});S.sm[ym]=(S.sm[ym]||[]).filter(x=>x.date!==td());S.cfm=null;sInv();sSales(ym);render();}
+function toggleAmt(){S.showAmt=!S.showAmt;if(S.showAmt){S.customAmt=S.cart.reduce((s,i)=>s+i.price*i.qty,0);}else{S.customAmt=null;}render();}
+function setAmt(v){S.customAmt=v;render();}
+function clearAmt(){S.showAmt=false;S.customAmt=null;render();}
+function togIn(pid){S.inForm={...S.inForm,[pid]:!S.inForm[pid]};S.adjForm={...S.adjForm,[pid]:false};if(!S.inQty[pid])S.inQty[pid]=0;render();}
+function cancelIn(pid){S.inForm={...S.inForm,[pid]:false};S.inQty[pid]=0;render();}
+function chgIn(pid,d){S.inQty={...S.inQty,[pid]:Math.max(0,(S.inQty[pid]||0)+d)};render();}
+function doIn(pid,sid){
+  const qty=S.inQty[pid]||0;
+  const dEl=document.getElementById('inDate_'+pid);
+  const prodDate=dEl?dEl.value:'';
+  if(qty<=0||!prodDate){alert('請設定進貨罐數和製作日期');return;}
+  const pname=(S.prods.find(x=>x.id===pid)||{}).name||'未知';
+  if(!S.batches[pid])S.batches[pid]=[];
+  S.batches[pid].push({id:Date.now(),prodDate,addedDate:new Date().toISOString().slice(0,10),qty});
+  S.stks=S.stks.map(s=>s.id===sid?{...s,stock:s.stock+qty}:s);
+  S.mvs.push({id:Date.now()+Math.random(),type:'in',pid,name:pname,qty,date:td(),time:tn(),prodDate,note:''});
+  S.inForm={...S.inForm,[pid]:false};S.inQty[pid]=0;
+  sInv();sBatch();sMov();render();
+}
+function togAdj(pid){S.adjForm={...S.adjForm,[pid]:!S.adjForm[pid]};S.inForm={...S.inForm,[pid]:false};S.adjQty={...S.adjQty,[pid]:0};render();}
+function cancelAdj(pid){S.adjForm={...S.adjForm,[pid]:false};S.adjQty[pid]=0;render();}
+function chgAdj(pid,d){S.adjQty={...S.adjQty,[pid]:(S.adjQty[pid]||0)+d};render();}
+function doAdj(pid,sid){
+  const aq=S.adjQty[pid]||0;
+  if(aq===0)return;
+  const noteEl=document.getElementById('adjNote_'+pid);
+  const noteText=noteEl?noteEl.value.trim():'';
+  if(!noteText){alert('請填寫調整原因');return;}
+  const pname=(S.prods.find(x=>x.id===pid)||{}).name||'未知';
+  S.stks=S.stks.map(s=>s.id===sid?{...s,stock:Math.max(0,s.stock+aq)}:s);
+  const dir=aq>0?'+':'-';
+  S.mvs.push({id:Date.now()+Math.random(),type:'adj',pid,name:pname,qty:Math.abs(aq),adjDir:dir,date:td(),time:tn(),note:dir+Math.abs(aq)+'罐：'+noteText});
+  S.adjForm={...S.adjForm,[pid]:false};S.adjQty[pid]=0;
+  sInv();sMov();render();
+}
+
 setup();
 </script>
 </body>
