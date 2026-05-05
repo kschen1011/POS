@@ -467,7 +467,14 @@ function render(){
   else if(G.tab==="prod")body="<div class='page'>"+rProd(ap)+"</div>";
   else body="<div class='page'>"+rSet()+"</div>";
   var nav=[["pos","🧾","收銀"],["inv","📦","庫存"],["rep","📊","業績"],["prod","🍪","生產"],["set","⚙️","設定"]];
-  var navHtml=nav.map(function(n){return "<button class='nb"+(G.tab===n[0]?" on":"")+"' onclick="goTab('"+n[0]+"')"><span class='nb-ic'>"+n[1]+"</span><span class='nb-lb'>"+n[2]+"</span></button>";}).join("");
+  var navHtml="";
+  nav.forEach(function(n){
+    var cls="nb"+(G.tab===n[0]?" on":"");
+    navHtml+="<button class=\""+cls+"\" onclick=\"goTab('"+n[0]+"')\">";
+    navHtml+="<span class=\"nb-ic\">"+n[1]+"</span>";
+    navHtml+="<span class=\"nb-lb\">"+n[2]+"</span>";
+    navHtml+="</button>";
+  });
   el.innerHTML=
     "<div class='hdr'>"+
       "<div><div class='hdr-logo'>半吊子廚房</div><div class='hdr-sub'>THE HALF KITCHEN</div></div>"+
