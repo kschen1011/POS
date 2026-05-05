@@ -352,7 +352,6 @@ function setup(){
   DB.collection('pos').doc('inventory').onSnapshot(d=>{if(d.exists){const x=d.data();S.mats=x.mats;S.stks=x.stks;}else{S.mats=cp(DM);S.stks=cp(DS);sInv();}S.conn=true;S.il=true;tryR();},()=>{document.getElementById('app').innerHTML='<div style="padding:40px;text-align:center;color:#C03020">無法連接雲端，請確認網路</div>';});
   DB.collection('pos').doc('batches').onSnapshot(d=>{S.batches=d.exists?(d.data().batches||{}):{};S.bl=true;tryR();});
   DB.collection('pos').doc('movements').onSnapshot(d=>{S.movements=d.exists?(d.data().movements||[]):[];S.ml=true;tryR();});
-  DB.collection('pos').doc('movements').onSnapshot(d=>{S.movements=d.exists?(d.data().movements||[]):[];S.ml=true;tryR();});
   DB.collection('pos').doc('sales_'+cym()).onSnapshot(d=>{S.sm[cym()]=d.exists?(d.data().items||[]):[];S.sl=true;tryR();});
   DB.collection('pos').doc('meta').onSnapshot(d=>{S.am=d.exists?(d.data().months||[]):[];if(!S.selM)S.selM=cym();render();});
 }
