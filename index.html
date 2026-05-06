@@ -286,10 +286,12 @@ select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-
     <div class="stabs">
       <button class="stab on" onclick="swRpt('today')">今日</button>
       <button class="stab" onclick="swRpt('month')">月報表</button>
+      <button class="stab" onclick="swRpt('annual')">年度排行</button>
       <button class="stab" onclick="swRpt('mv')">進出庫</button>
     </div>
     <div id="rpt-today"></div>
     <div id="rpt-month" style="display:none"></div>
+    <div id="rpt-annual" style="display:none"></div>
     <div id="rpt-mv" style="display:none"></div>
   </div>
 
@@ -456,9 +458,10 @@ function swInv(t){
 }
 function swRpt(t){
   rptTab=t;
-  document.querySelectorAll('#report-page .stab').forEach((b,i)=>b.classList.toggle('on',['today','month','mv'][i]===t));
+  document.querySelectorAll('#report-page .stab').forEach((b,i)=>b.classList.toggle('on',['today','month','annual','mv'][i]===t));
   document.getElementById('rpt-today').style.display=t==='today'?'block':'none';
   document.getElementById('rpt-month').style.display=t==='month'?'block':'none';
+  document.getElementById('rpt-annual').style.display=t==='annual'?'block':'none';
   document.getElementById('rpt-mv').style.display=t==='mv'?'block':'none';
   ra();
 }
@@ -478,7 +481,7 @@ function ra(){
   renderExpire();
   if(curTab==='pos'){rPOS();rCart();}
   if(curTab==='inv'){if(invTab==='stk')rInvStk();else rInvMat();}
-  if(curTab==='report'){if(rptTab==='today')rToday();else if(rptTab==='month')rMonth();else rMv();}
+  if(curTab==='report'){if(rptTab==='today')rToday();else if(rptTab==='month')rMonth();else if(rptTab==='annual')rAnnual();else rMv();}
   if(curTab==='prod')rProd();
   if(curTab==='settings'){if(setTab==='prod')rSetProd();else if(setTab==='stk')rSetStk();else rSetMat();}
 }
@@ -867,6 +870,9 @@ function expCSV(){
 // =========================================================
 // REPORTS - MOVEMENTS
 // =========================================================
+let showInForm=false;
+let inFormPid=0;let inFormQty=0;
+
 function rMv(){
   const el=document.getElementById('rpt-mv');
   let mvs=[...S.mvs];
@@ -875,7 +881,46 @@ function rMv(){
   const inC=S.mvs.filter(m=>m.type==='in').reduce((a,m)=>a+m.qty,0);
   const outC=S.mvs.filter(m=>m.type==='out').reduce((a,m)=>a+m.qty,0);
   const adjC=S.mvs.filter(m=>m.type==='adj').length;
+
+  // Build product options
+  const prodOpts=S.prods.filter(p=>p.active).map(p=>`<option value="${p.id}" ${inFormPid===p.id?'selected':''}>${p.name}</option>`).join('');
+
   el.innerHTML=`
+    <!-- ── 進庫快速填寫 ── -->
+    <div class="card" style="border:2px solid #A5D6A7">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="togInForm()">
+        <span style="font-size:14px;font-weight:700;color:#2E7D32">📥 快速新增進庫</span>
+        <span style="font-size:18px;color:#2E7D32">${showInForm?'▲':'▼'}</span>
+      </div>
+      ${showInForm?`
+      <div style="margin-top:12px">
+        <div class="frow" style="display:flex;gap:8px;margin-bottom:9px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">品項：</span>
+          <select id="in-pid" onchange="inFormPid=parseInt(this.value)" style="flex:1">
+            <option value="0">-- 選擇品項 --</option>
+            ${prodOpts}
+          </select>
+        </div>
+        <div class="frow" style="display:flex;gap:7px;margin-bottom:9px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">罐數：</span>
+          <button class="btn btn-sm" onclick="chMvIn(-5)">-5</button>
+          <button class="btn btn-sm" onclick="chMvIn(-1)">−</button>
+          <input type="number" id="mv-in-qty" value="${inFormQty}" min="0" oninput="inFormQty=Math.max(0,parseInt(this.value)||0)" style="width:62px;padding:7px;border:1.5px solid var(--border);border-radius:7px;font-size:16px;text-align:center;font-family:inherit">
+          <button class="btn btn-sm" onclick="chMvIn(1)">+</button>
+          <button class="btn btn-sm" onclick="chMvIn(5)">+5</button>
+          <button class="btn btn-sm" onclick="chMvIn(10)">+10</button>
+        </div>
+        <div class="frow" style="display:flex;gap:7px;margin-bottom:9px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">製作日期：</span>
+          <input type="date" id="in-mv-date" value="${new Date().toISOString().split('T')[0]}" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-success" style="flex:1;padding:11px" onclick="submitMvIn()">✅ 確認進庫</button>
+          <button class="btn btn-sm" onclick="togInForm()">取消</button>
+        </div>
+      </div>`:''}
+    </div>
+
     <div class="fbar">
       <button class="fb ${mvFilt==='all'?'on':''}" onclick="setMvF('all')">全部</button>
       <button class="fb ${mvFilt==='in'?'on':''}" onclick="setMvF('in')" style="color:#2E7D32;border-color:#A5D6A7">進庫</button>
@@ -902,6 +947,25 @@ function rMv(){
       </div>`).join('')
     }`;
 }
+function togInForm(){showInForm=!showInForm;if(showInForm){inFormPid=S.prods.filter(p=>p.active)[0]?.id||0;inFormQty=0;}rMv();}
+function chMvIn(d){inFormQty=Math.max(0,inFormQty+d);rMv();}
+async function submitMvIn(){
+  const pid=inFormPid||parseInt(document.getElementById('in-pid')?.value||'0');
+  if(!pid){toast('請選擇品項');return;}
+  const qInput=document.getElementById('mv-in-qty');if(qInput)inFormQty=Math.max(0,parseInt(qInput.value)||0);
+  if(inFormQty<=0){toast('請輸入罐數');return;}
+  const dateEl=document.getElementById('in-mv-date');
+  if(!dateEl?.value){toast('請填製作日期');return;}
+  const made=dateEl.value;
+  const p=S.prods.find(p=>p.id===pid);
+  const ns=JSON.parse(JSON.stringify(S.stks));
+  const nb=JSON.parse(JSON.stringify(S.batches));
+  const i=ns.findIndex(s=>s.id===pid);if(i>=0)ns[i].qty=(ns[i].qty||0)+inFormQty;
+  if(!nb[pid])nb[pid]=[];nb[pid].push({made,qty:inFormQty});
+  const nm=[{type:'in',pid,name:p?.name||'',qty:inFormQty,time:new Date().toISOString(),made},...S.mvs];
+  await Promise.all([POS.doc('inventory').set({stks:ns,mats:S.mats}),POS.doc('batches').set(nb),POS.doc('movements').set({mvs:nm})]);
+  showInForm=false;inFormQty=0;toast('✅ 進庫記錄完成');
+}
 function setMvF(f){mvFilt=f;rMv();}
 function setMvD(d){mvDate=d;rMv();}
 
@@ -924,6 +988,60 @@ async function clrToday(){
     toast('✅ 今日資料已清空');
   });
 }
+
+
+// =========================================================
+// REPORTS - ANNUAL RANKING
+// =========================================================
+let annualYear=new Date().getFullYear();
+function rAnnual(){
+  const el=document.getElementById('rpt-annual');
+  // Load all months for the year if not already loaded
+  const months=Array.from({length:12},(_,i)=>`${annualYear}${String(i+1).padStart(2,'0')}`);
+  months.forEach(m=>{if(!S.sm[m])loadSales(m);});
+  // Aggregate
+  const fmap={};let totalAmt=0;let totalQty=0;let loadedAny=false;
+  months.forEach(m=>{
+    const sales=S.sm[m]||[];
+    if(sales.length)loadedAny=true;
+    sales.forEach(s=>{
+      totalAmt+=s.total;
+      s.items.forEach(it=>{
+        totalQty+=it.qty;
+        if(!fmap[it.name])fmap[it.name]={qty:0,amt:0};
+        fmap[it.name].qty+=it.qty;fmap[it.name].amt+=it.qty*it.price;
+      });
+    });
+  });
+  const fl=Object.entries(fmap).map(([n,v])=>({n,...v})).sort((a,b)=>b.qty-a.qty);
+  const mx=Math.max(...fl.map(f=>f.qty),1);
+  const yearOpts=[annualYear,annualYear-1,annualYear-2].map(y=>`<option value="${y}" ${y===annualYear?'selected':''}>${y}年</option>`).join('');
+  el.innerHTML=`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:13px">
+      <select onchange="selYear(parseInt(this.value))">${yearOpts}</select>
+      <span style="font-size:13px;color:var(--muted)">年度累積排行</span>
+    </div>
+    <div class="sc">
+      <div class="scard"><div class="sv">NT$${totalAmt.toLocaleString()}</div><div class="sl">年度營業額</div></div>
+      <div class="scard"><div class="sv">${totalQty}</div><div class="sl">年度銷售罐數</div></div>
+      <div class="scard"><div class="sv">${fl.length}</div><div class="sl">有售口味數</div></div>
+    </div>
+    ${!fl.length?'<div class="empty">'+(loadedAny?'本年度尚無銷售資料':'載入中...')+'</div>':`
+    <div class="stitle">年度口味排行 🏆</div>
+    <div class="card">${fl.map((f,i)=>`
+      <div class="brow2">
+        <div class="blabel">${f.n}</div>
+        <div class="btrack"><div class="bfill" style="width:${(f.qty/mx*100).toFixed(0)}%;background:${i===0?'linear-gradient(90deg,#C9952A,#F5C842)':i===1?'linear-gradient(90deg,#888,#bbb)':i===2?'linear-gradient(90deg,#8B4513,#CD853F)':'linear-gradient(90deg,var(--orange),var(--orange2))'}"><span class="bval">${f.qty}罐</span></div></div>
+        <span class="bmed">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i===3?'4️⃣':i===4?'5️⃣':''}</span>
+      </div>`).join('')}
+    </div>
+    <div class="stitle">各口味明細</div>
+    <div class="card"><table class="st">
+      <tr><th>排名</th><th>品項</th><th>銷售量</th><th>營業額</th></tr>
+      ${fl.map((f,i)=>`<tr><td style="font-weight:700;color:${i===0?'#C9952A':i===1?'#888':i===2?'#8B4513':'var(--muted)'}">${i+1}</td><td>${f.n}</td><td>${f.qty} 罐</td><td>NT$${f.amt.toLocaleString()}</td></tr>`).join('')}
+    </table></div>`}`;
+}
+function selYear(y){annualYear=y;const months=Array.from({length:12},(_,i)=>`${y}${String(i+1).padStart(2,'0')}`);months.forEach(m=>{if(!S.sm[m])loadSales(m);});setTimeout(rAnnual,800);}
 
 // =========================================================
 // PRODUCTION
