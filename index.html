@@ -275,9 +275,11 @@ select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-
   <div id="inv-page" class="page">
     <div class="stabs">
       <button class="stab on" onclick="swInv('stk')">成品庫存</button>
+      <button class="stab" onclick="swInv('batch')">批次總覽</button>
       <button class="stab" onclick="swInv('mat')">原料庫存</button>
     </div>
     <div id="inv-stk"></div>
+    <div id="inv-batch" style="display:none"></div>
     <div id="inv-mat" style="display:none"></div>
   </div>
 
@@ -402,7 +404,7 @@ const BOM={
 // =========================================================
 const S={
   prods:[],mats:[],stks:[],batches:{},mvs:[],sm:{},
-  cart:[],customAmt:null,showAmt:false,
+  cart:[],customAmt:null,showAmt:false,_editBatch:null,
   inForm:{},inQty:{},adjForm:{},adjQty:{},
   plan:{},
   _inv:false,_prod:false,_mv:false,_ready:false
@@ -451,8 +453,9 @@ function sw(t){
 }
 function swInv(t){
   invTab=t;
-  document.querySelectorAll('#inv-page .stab').forEach((b,i)=>b.classList.toggle('on',['stk','mat'][i]===t));
+  document.querySelectorAll('#inv-page .stab').forEach((b,i)=>b.classList.toggle('on',['stk','batch','mat'][i]===t));
   document.getElementById('inv-stk').style.display=t==='stk'?'block':'none';
+  document.getElementById('inv-batch').style.display=t==='batch'?'block':'none';
   document.getElementById('inv-mat').style.display=t==='mat'?'block':'none';
   ra();
 }
@@ -480,7 +483,7 @@ function swSet(t){
 function ra(){
   renderExpire();
   if(curTab==='pos'){rPOS();rCart();}
-  if(curTab==='inv'){if(invTab==='stk')rInvStk();else rInvMat();}
+  if(curTab==='inv'){if(invTab==='stk')rInvStk();else if(invTab==='batch')rBatch();else rInvMat();}
   if(curTab==='report'){if(rptTab==='today')rToday();else if(rptTab==='month')rMonth();else if(rptTab==='annual')rAnnual();else rMv();}
   if(curTab==='prod')rProd();
   if(curTab==='settings'){if(setTab==='prod')rSetProd();else if(setTab==='stk')rSetStk();else rSetMat();}
@@ -652,13 +655,22 @@ function rInvStk(){
     const qty=stk.qty||0;
     const qc=qty<=3?'qr':qty<=8?'qo':'qg';
     const batches=(S.batches[p.id]||[]).filter(b=>b.qty>0).sort((a,b)=>new Date(a.made)-new Date(b.made));
-    const bHtml=batches.length?'<div style="margin-top:8px">'+batches.map(b=>{
+    const bHtml=batches.length?'<div style="margin-top:8px">'+batches.map((b,bi)=>{
       const d=new Date(b.made);d.setHours(0,0,0,0);
       const days=Math.floor((today-d)/86400000);
-      return`<div class="brow ${days>=10?'exp':''}">
-        <span>${b.made}${days>=10?' ⚠️':''}</span>
-        <span>剩 ${b.qty} 罐</span>
-        <span class="bdys">${days} 天</span>
+      const editing=S._editBatch&&S._editBatch.pid===p.id&&S._editBatch.bi===bi;
+      return`<div class="brow ${days>=10?'exp':''}" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600">${b.made}${days>=10?' ⚠️':''}</span>
+          <span>剩 <strong>${b.qty}</strong> 罐</span>
+          <span class="bdys" style="font-weight:700;color:${days>=10?'var(--red)':days>=7?'var(--orange)':'var(--muted)'}">${days} 天</span>
+          <button class="btn btn-sm" style="font-size:11px;padding:3px 7px" onclick="togEditBatch(${p.id},${bi})">✏️ 改日期</button>
+        </div>
+        ${editing?`<div style="display:flex;gap:6px;align-items:center">
+          <input type="date" id="eb-${p.id}-${bi}" value="${b.made}" style="flex:1;padding:6px;border:1.5px solid var(--orange);border-radius:6px;font-size:13px;font-family:inherit">
+          <button class="btn btn-success" style="font-size:12px;padding:6px 10px" onclick="saveEditBatch(${p.id},${bi})">儲存</button>
+          <button class="btn btn-sm" onclick="S._editBatch=null;rInvStk()">取消</button>
+        </div>`:''}
       </div>`;
     }).join('')+'</div>':'';
     const ifo=S.inForm[p.id];const afo=S.adjForm[p.id];
@@ -681,14 +693,17 @@ function rInvStk(){
           <span class="flabel">罐數：</span>
           <button class="btn btn-sm" onclick="chIn(${p.id},-5)">-5</button>
           <button class="btn btn-sm" onclick="chIn(${p.id},-1)">−</button>
-          <strong style="min-width:28px;text-align:center">${iq}</strong>
+          <input type="number" id="inq-${p.id}" value="${iq}" min="0" oninput="S.inQty[${p.id}]=Math.max(0,parseInt(this.value)||0)" style="width:56px;padding:6px;border:1.5px solid var(--border);border-radius:7px;font-size:15px;text-align:center;font-family:inherit">
           <button class="btn btn-sm" onclick="chIn(${p.id},1)">+</button>
           <button class="btn btn-sm" onclick="chIn(${p.id},5)">+5</button>
           <button class="btn btn-sm" onclick="chIn(${p.id},10)">+10</button>
         </div>
-        <div class="frow">
-          <span class="flabel">製作日期：</span>
-          <input type="date" id="ind-${p.id}" value="${new Date().toISOString().split('T')[0]}">
+        <div class="frow" style="flex-direction:column;align-items:flex-start;gap:4px">
+          <div style="display:flex;align-items:center;gap:8px;width:100%">
+            <span class="flabel" style="white-space:nowrap">製作日期：</span>
+            <input type="date" id="ind-${p.id}" value="${new Date().toISOString().split('T')[0]}" style="flex:1">
+          </div>
+          <div style="font-size:11px;color:var(--orange);padding-left:2px">⚠️ 寄賣歸還商品請改填原始製作日期</div>
         </div>
         <div class="frow">
           <button class="btn btn-success" onclick="confIn(${p.id})">確認進貨</button>
@@ -729,6 +744,7 @@ function chIn(pid,d){S.inQty[pid]=Math.max(0,(S.inQty[pid]||0)+d);rInvStk();}
 function chAdj(pid,d){S.adjQty[pid]=(S.adjQty[pid]||0)+d;rInvStk();}
 
 async function confIn(pid){
+  const qEl=document.getElementById('inq-'+pid);if(qEl)S.inQty[pid]=Math.max(0,parseInt(qEl.value)||0);
   const qty=S.inQty[pid]||0;if(qty<=0){toast('請輸入罐數');return;}
   const de=document.getElementById('ind-'+pid);if(!de?.value){toast('請填製作日期');return;}
   const made=de.value;
@@ -752,6 +768,79 @@ async function confAdj(pid){
   const nm=[{type:'adj',pid,name:p?.name||'',qty,time:new Date().toISOString(),reason},...S.mvs];
   await Promise.all([POS.doc('inventory').set({stks:ns,mats:S.mats}),POS.doc('movements').set({mvs:nm})]);
   S.adjForm[pid]=false;toast('✅ 調整完成');
+}
+
+function togEditBatch(pid,bi){
+  if(S._editBatch&&S._editBatch.pid===pid&&S._editBatch.bi===bi){S._editBatch=null;}
+  else{S._editBatch={pid,bi};}
+  rInvStk();
+}
+async function saveEditBatch(pid,bi){
+  const el=document.getElementById(`eb-${pid}-${bi}`);
+  if(!el?.value){toast('請選擇日期');return;}
+  const nb=JSON.parse(JSON.stringify(S.batches));
+  if(!nb[pid]||!nb[pid][bi]){toast('批次不存在');return;}
+  nb[pid][bi].made=el.value;
+  await POS.doc('batches').set(nb);
+  S._editBatch=null;
+  toast('✅ 製作日期已更新');
+}
+
+// =========================================================
+// INVENTORY - BATCH OVERVIEW (批次總覽)
+// =========================================================
+function rBatch(){
+  const el=document.getElementById('inv-batch');
+  const today=new Date();today.setHours(0,0,0,0);
+  // Collect all active batches
+  let rows=[];
+  S.prods.filter(p=>p.active).forEach(p=>{
+    (S.batches[p.id]||[]).filter(b=>b.qty>0).forEach((b,bi)=>{
+      const d=new Date(b.made);d.setHours(0,0,0,0);
+      const days=Math.floor((today-d)/86400000);
+      rows.push({pid:p.id,bi,name:p.name,made:b.made,qty:b.qty,days});
+    });
+  });
+  rows.sort((a,b)=>b.days-a.days); // oldest first
+
+  const urgent=rows.filter(r=>r.days>=10);
+  const ok=rows.filter(r=>r.days<10);
+
+  el.innerHTML=`
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">依存放天數排列，最舊批次最先顯示。超過 10 天請加強促銷。</p>
+    ${urgent.length?`
+    <div style="background:#FFEBEE;border:1.5px solid #FFCDD2;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ 需加強促銷（超過 10 天）</div>
+      ${urgent.map(r=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid #FFCDD2;gap:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700">${r.name}</div>
+            <div style="font-size:11px;color:var(--muted)">製作：${r.made}</div>
+          </div>
+          <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <span style="font-size:14px;font-weight:900;color:var(--red)">${r.days} 天</span>
+            <span style="font-size:12px;font-weight:600;color:var(--red)">剩 ${r.qty} 罐</span>
+            <button class="btn btn-sm" style="font-size:11px;padding:3px 7px" onclick="togEditBatch(${r.pid},${r.bi});swInv('stk')">✏️ 改日期</button>
+          </div>
+        </div>`).join('')}
+    </div>`:'<div style="background:#E8F5E9;border:1.5px solid #C8E6C9;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;font-weight:700;color:#2E7D32;text-align:center">✅ 目前所有批次都在 10 天以內</div>'}
+    ${ok.length?`
+    <div class="stitle">正常批次</div>
+    ${ok.map(r=>{
+      const color=r.days>=7?'var(--orange)':'var(--muted)';
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface);border-radius:9px;margin-bottom:6px;box-shadow:0 2px 6px rgba(44,26,14,.07)">
+        <div>
+          <div style="font-size:13px;font-weight:700">${r.name}</div>
+          <div style="font-size:11px;color:var(--muted)">製作：${r.made}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:15px;font-weight:900;color:${color}">${r.days} 天</div>
+          <div style="font-size:12px;font-weight:600;color:var(--muted)">剩 ${r.qty} 罐</div>
+        </div>
+      </div>`;
+    }).join('')}`:''}
+    ${!rows.length?'<div class="empty">目前沒有任何批次記錄</div>':''}
+  `;
 }
 
 // =========================================================
@@ -910,9 +999,12 @@ function rMv(){
           <button class="btn btn-sm" onclick="chMvIn(5)">+5</button>
           <button class="btn btn-sm" onclick="chMvIn(10)">+10</button>
         </div>
-        <div class="frow" style="display:flex;gap:7px;margin-bottom:9px;align-items:center;flex-wrap:wrap">
-          <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">製作日期：</span>
-          <input type="date" id="in-mv-date" value="${new Date().toISOString().split('T')[0]}" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit">
+        <div style="margin-bottom:9px">
+          <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap">製作日期：</span>
+            <input type="date" id="in-mv-date" value="${new Date().toISOString().split('T')[0]}" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit">
+          </div>
+          <div style="font-size:11px;color:var(--orange);margin-top:4px;padding-left:2px">⚠️ 寄賣歸還商品請改填原始製作日期（非今天）</div>
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-success" style="flex:1;padding:11px" onclick="submitMvIn()">✅ 確認進庫</button>
