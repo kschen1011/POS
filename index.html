@@ -13,7 +13,7 @@
   --p:#C2440A;--pl:#FEF0E7;--acc:#F5A623;
   --ok:#27AE60;--warn:#E67E22;--err:#E74C3C;--blu:#2980B9;
   --bg:#FAF6F1;--card:#fff;--txt:#2C2C2C;--muted:#999;--bdr:#E8DDD0;
-  --nav:58px;--top:50px;
+  --nav:58px;--top:50px;--bh:0px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--txt)}
@@ -26,14 +26,15 @@ body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;bac
 .ld-dot{width:8px;height:8px;background:rgba(255,255,255,.4);border-radius:50%;animation:dt 1.2s ease infinite}
 .ld-dot:nth-child(2){animation-delay:.2s}.ld-dot:nth-child(3){animation-delay:.4s}
 @keyframes dt{0%,80%,100%{transform:scale(.8);opacity:.4}40%{transform:scale(1.2);opacity:1}}
-#alert-banner{display:none;background:var(--err);color:#fff;padding:8px 14px;font-size:13px;font-weight:600;text-align:center;position:fixed;top:var(--top);left:0;right:0;z-index:99}
+#alert-banner{display:none;background:var(--err);color:#fff;font-size:13px;font-weight:700;text-align:center;position:fixed;top:var(--top);left:0;right:0;height:40px;line-height:40px;z-index:99}
 #alert-banner.show{display:block}
-body.has-alert #main{padding-top:calc(var(--top) + 36px)}
+body.has-banner{--bh:40px}
+
 #topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:var(--p);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:100}
 .tb-logo{font-size:13px;font-weight:800}.tb-st{display:flex;align-items:center;gap:5px;font-size:11px}
 .sdot{width:7px;height:7px;border-radius:50%;background:#ccc;transition:background .3s}
 .sdot.ok{background:#4CD964}.sdot.err{background:#FF3B30}
-#main{padding-top:calc(var(--top)+2px);padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px)+4px)}
+#main{padding-top:calc(var(--top) + var(--bh) + 2px);padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px)+4px)}
 .view{display:none;padding:10px 12px}.view.show{display:block}
 #nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:#fff;border-top:1px solid var(--bdr);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--muted);border:none;background:none;padding:4px 0;transition:color .15s}
@@ -146,11 +147,11 @@ body.has-alert #main{padding-top:calc(var(--top) + 36px)}
   <div class="ld-sb">THE HALF KITCHEN · POS v5.0</div>
   <div class="ld-dots"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div></div>
 </div>
-<div id="alert-banner">⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。</div>
 <div id="topbar">
   <span class="tb-logo">🍪 半吊子廚房 POS</span>
   <div class="tb-st"><div class="sdot" id="sdot"></div><span id="slbl" style="color:rgba(255,255,255,.8)">連線中...</span></div>
 </div>
+<div id="alert-banner">⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。</div>
 <div id="main">
   <div class="view show" id="v-pos"></div>
   <div class="view" id="v-inv">
@@ -203,6 +204,51 @@ const INIT_PRODS=[
   {id:8,name:'莓果雪球',category:'snowball',price:270,staffDisc:true,active:true},
   {id:9,name:'海鹽焦糖雪球',category:'snowball',price:270,staffDisc:true,active:true},
   {id:10,name:'綜合雪球禮盒',category:'snowball',price:520,staffDisc:false,active:true},
+  {id:11,name:'小禮盒',category:'packaging',price:0,staffDisc:false,active:true},
+  {id:12,name:'加購長條禮盒組',category:'packaging',price:0,staffDisc:false,active:true},
+  {id:13,name:'半吊子帆布袋',category:'packaging',price:0,staffDisc:false,active:true},
+];
+// ── 舊系統資料 (Legacy Import) ──
+const LEGACY_STKS={1:28,2:10,3:3,4:11,5:11,6:13,7:2,8:3,9:6,10:2,11:0,12:500,13:20};
+const LEGACY_BATCHES={
+  '1':[{date:'2026-05-06',qty:28}],
+  '2':[{date:'2026-05-06',qty:10}],
+  '3':[{date:'2026-05-06',qty:3}],
+  '4':[{date:'2026-05-06',qty:1},{date:'2026-05-07',qty:10}],
+  '5':[{date:'2026-05-06',qty:11}],
+  '6':[{date:'2026-05-06',qty:13}],
+  '7':[{date:'2026-05-06',qty:2}],
+  '8':[{date:'2026-05-06',qty:3}],
+  '9':[{date:'2026-05-06',qty:2},{date:'2026-05-07',qty:4}],
+  '10':[{date:'2026-05-06',qty:2}],
+  '11':[],
+  '12':[{date:'2025-04-06',qty:500}],
+  '13':[{date:'2026-05-01',qty:20}],
+};
+// 5月歷史彙總(5/6前) + 今日4筆(5/7)
+const LEGACY_SALES_202605=[
+  {id:'leg001',ts:'2026-05-06T00:00:00.000Z',items:[
+    {pid:1,name:'招牌鹹蛋雪球',qty:26,unitPrice:230},
+    {pid:10,name:'綜合雪球禮盒',qty:8,unitPrice:520},
+    {pid:9,name:'海鹽焦糖雪球',qty:3,unitPrice:270},
+    {pid:7,name:'可可2.0雪球',qty:3,unitPrice:240},
+    {pid:4,name:'桂花烏龍茶雪球',qty:1,unitPrice:240}
+  ],total:11910,discount:0,custType:'walkin'},
+  {id:'leg002',ts:'2026-05-07T01:24:00.000Z',items:[
+    {pid:3,name:'酸奶洋蔥雪球',qty:1,unitPrice:240},
+    {pid:4,name:'桂花烏龍茶雪球',qty:1,unitPrice:240}
+  ],total:0,discount:480,custType:'walkin'},
+  {id:'leg003',ts:'2026-05-07T01:30:00.000Z',items:[
+    {pid:5,name:'伯爵茶雪球',qty:3,unitPrice:240},
+    {pid:9,name:'海鹽焦糖雪球',qty:3,unitPrice:270}
+  ],total:0,discount:1530,custType:'walkin'},
+  {id:'leg004',ts:'2026-05-07T01:40:00.000Z',items:[
+    {pid:1,name:'招牌鹹蛋雪球',qty:2,unitPrice:230},
+    {pid:6,name:'包心巧克力雪球',qty:2,unitPrice:240}
+  ],total:0,discount:940,custType:'walkin'},
+  {id:'leg005',ts:'2026-05-07T02:02:00.000Z',items:[
+    {pid:10,name:'綜合雪球禮盒',qty:1,unitPrice:520}
+  ],total:520,discount:0,custType:'walkin'},
 ];
 const INIT_MATS=[
   {id:1,name:'奶油',unit:'kg',stock:5,minStock:2},
@@ -276,7 +322,7 @@ function hasExpBatch(pid){
 function updateAlertBanner(){
   const show=hasExpBatches();
   document.getElementById('alert-banner')?.classList.toggle('show',show);
-  document.body.classList.toggle('has-alert',show);
+  document.body.classList.toggle('has-banner',show);
 }
 
 // ── Data Load/Save ──
@@ -287,6 +333,11 @@ async function loadAll(){
     if(is.exists){stks=is.data().stks||{};mats=is.data().mats||[];}
     if(bs.exists)batches=bs.data().items||{};
     if(ms.exists)mvs=ms.data().mvs||[];
+    // Fallback: if products still empty, re-run migration (handles stale Firebase state)
+    if(!prods||prods.length===0){
+      console.warn('Products empty after load, running migration...');
+      await runMigration();
+    }
     await loadSalesMonth(ymStr(new Date()));
     setSyncStatus(true);
   }catch(e){console.error('loadAll',e);setSyncStatus(false);}
@@ -302,11 +353,34 @@ async function saveMvs(){if(mvs.length>500)mvs=mvs.slice(-500);await pos.doc('mo
 async function saveSales(ym){await pos.doc('sales_'+ym).set({items:salesCache[ym]||[]});}
 
 // ── Migration ──
+async function importLegacyData(){
+  console.log('匯入舊系統資料...');
+  prods=[...INIT_PRODS];
+  const s={};INIT_PRODS.forEach(p=>{s[p.id]=LEGACY_STKS[p.id]!==undefined?LEGACY_STKS[p.id]:0;});
+  stks=s;
+  mats=INIT_MATS;
+  batches=LEGACY_BATCHES;
+  salesCache['202605']=LEGACY_SALES_202605;
+  await Promise.all([
+    pos.doc('products').set({items:prods}),
+    pos.doc('inventory').set({stks:s,mats:INIT_MATS}),
+    pos.doc('batches').set({items:LEGACY_BATCHES}),
+    pos.doc('sales_202605').set({items:LEGACY_SALES_202605}),
+    pos.doc('meta').set({migrated:true,migrated_v5:true,data_v1_imported:true},{merge:true}),
+  ]);
+  console.log('舊系統資料匯入完成。');
+}
 async function checkMigration(){
-  try{const m=await pos.doc('meta').get();if(!m.exists||!m.data().migrated)await runMigration();}
+  try{
+    const m=await pos.doc('meta').get();
+    const d=m.exists?m.data():{};
+    if(!d.migrated_v5) await runMigration();
+    if(!d.data_v1_imported) await importLegacyData();
+  }
   catch(e){console.error('migration',e);}
 }
 async function runMigration(){
+  console.log('Running v5 migration...');
   prods=INIT_PRODS;mats=INIT_MATS;batches={};mvs=[];
   const s={};INIT_PRODS.forEach(p=>{s[p.id]=0;});stks=s;
   await Promise.all([
@@ -314,8 +388,9 @@ async function runMigration(){
     pos.doc('inventory').set({stks:s,mats:INIT_MATS}),
     pos.doc('batches').set({items:{}}),
     pos.doc('movements').set({mvs:[]}),
-    pos.doc('meta').set({migrated:true}),
+    pos.doc('meta').set({migrated:true,migrated_v5:true}),
   ]);
+  console.log('v5 migration complete.');
 }
 
 // ── Cart ──
