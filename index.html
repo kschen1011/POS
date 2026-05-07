@@ -136,6 +136,13 @@ body.has-banner{--bh:40px}
 .ct-info.wlk{background:#E8F5E9}.ct-info.onl{background:#E3F2FD}
 .civ{font-size:18px;font-weight:800}.ct-info.wlk .civ{color:var(--ok)}.ct-info.onl .civ{color:var(--blu)}
 .cil{font-size:11px;color:var(--muted)}
+/* ── Fixed checkout bar ── */
+#pos-bar{position:fixed;bottom:var(--nav);left:0;right:0;background:#fff;border-top:2px solid var(--p);z-index:95;display:none;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
+#pos-bar.show{display:block}
+.pos-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pos-bar-total{font-size:20px;font-weight:800}
+.pos-bar-disc{font-size:12px;color:var(--ok)}
+body.has-cart #main{padding-bottom:calc(var(--nav) + 82px + env(safe-area-inset-bottom,0px))}
 @media(min-width:480px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.pgrid{grid-template-columns:repeat(4,1fr)}.statrow{grid-template-columns:repeat(4,1fr)}}
 </style>
@@ -181,6 +188,7 @@ body.has-banner{--bh:40px}
     <div id="set-body"></div>
   </div>
 </div>
+<div id="pos-bar"></div>
 <div id="nav">
   <button class="nb on" id="nb-pos" onclick="setTab('pos')"><span class="ico">🛒</span><span class="lbl">收銀</span></button>
   <button class="nb" id="nb-inv" onclick="setTab('inv')"><span class="ico">📦</span><span class="lbl">庫存</span></button>
@@ -595,18 +603,42 @@ function renderPOS(){
         <div class="fb mt8" style="font-size:16px;font-weight:800"><span>結帳金額</span><span>NT$${calcTotal().toLocaleString()}</span></div>
       </div>`;
     }
-    h+=`<button class="ck-btn" onclick="checkout()">${custType==='walkin'?'🏪 現場':'📱 預訂'} 結帳 NT$${calcTotal().toLocaleString()}</button></div>`;
+    // Removed checkout button from scroll area - rendered in sticky bar below
+    h+=`</div>`;
   }
   el.innerHTML=h;
+  // ── Render sticky checkout bar ──
+  renderPOSBar();
+}
+function renderPOSBar(){
+  const bar=document.getElementById('pos-bar');
+  if(!bar)return;
+  if(!cart.length){
+    bar.classList.remove('show');
+    document.body.classList.remove('has-cart');
+    return;
+  }
+  bar.classList.add('show');
+  document.body.classList.add('has-cart');
+  const total=calcTotal(),disc=getDisc();
+  bar.innerHTML=`
+    <div class="pos-bar-row">
+      <span class="pos-bar-total">合計 NT$${total.toLocaleString()}</span>
+      ${disc>0?'<span class="pos-bar-disc">員工特約折抵 -NT$'+disc+'</span>':''}
+      ${modMode==='pr'?'<span class="pos-bar-disc" style="color:var(--warn)">公關出貨 NT$0</span>':''}
+    </div>
+    <button class="ck-btn" style="margin-top:0" onclick="checkout()">
+      ${custType==='walkin'?'🏪 現場':'📱 預訂'} 結帳 NT$${total.toLocaleString()}
+    </button>`;
 }
 function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOS();}
 function setModMode(m){
   if(m==='restore'){modMode=null;customAmt=null;}
   else if(m==='custom')modMode='custom';
   else{modMode=m;customAmt=null;}
-  renderPOS();
+  renderPOS();renderPOSBar();
 }
-function applyCA(){customAmt=Math.max(0,parseInt(document.getElementById('ca-inp')?.value)||0);renderPOS();}
+function applyCA(){customAmt=Math.max(0,parseInt(document.getElementById('ca-inp')?.value)||0);renderPOS();renderPOSBar();}
 
 // ── RENDER: INVENTORY ──
 function renderInventory(){
