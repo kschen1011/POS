@@ -434,7 +434,9 @@ function fifoDeduct(pid,qty){
   let rem=qty;
   for(const b of bs){if(rem<=0)break;const take=Math.min(b.qty,rem);b.qty-=take;rem-=take;}
   batches[pid]=bs.filter(b=>b.qty>0);
-  stks[pid]=Math.max(0,(stks[pid]||0)-qty+rem);
+  // 修正：無論是否有批次記錄，庫存一律扣減實際售出數量
+  // 舊版：stks[pid] - qty + rem → 批次為空時 rem=qty 導致庫存未變
+  stks[pid]=Math.max(0,(stks[pid]||0)-qty);
 }
 
 // ── Checkout ──
@@ -761,7 +763,18 @@ function adjIQ(pid,d){const e=document.getElementById('iq-'+pid);if(e)e.value=Ma
 function submitInstock(pid){const q=parseInt(document.getElementById('iq-'+pid)?.value)||0,dt=document.getElementById('id-'+pid)?.value||today();if(!q){alert('請輸入數量');return;}addStock(pid,q,dt);}
 function submitAdj(pid){const q=parseInt(document.getElementById('aq-'+pid)?.value)||0,r=(document.getElementById('ar-'+pid)?.value||'').trim();if(!q){alert('請輸入調整量');return;}if(!r){alert('請填寫原因');return;}adjustStock(pid,q,r);}
 function submitEB(pid,bi){const nd=document.getElementById('eb-dt')?.value;if(nd)editBatchDate(pid,bi,nd);}
-async function quickAdj(pid,d){stks[pid]=Math.max(0,(stks[pid]||0)+d);await saveInv();renderInventory();renderPOS();}
+async function quickAdj(pid,d){
+  stks[pid]=Math.max(0,(stks[pid]||0)+d);
+  // 若是增加庫存，補建批次記錄（保持 FIFO 資料一致）
+  if(d>0){
+    if(!batches[pid])batches[pid]=[];
+    batches[pid].push({date:today(),qty:d});
+    await Promise.all([saveInv(),saveBatches()]);
+  } else {
+    await saveInv();
+  }
+  renderInventory();renderPOS();
+}
 async function adjMat(mid,d){const m=getMat(mid);if(m)m.stock=Math.max(0,parseFloat((m.stock+d).toFixed(3)));await saveInv();renderInventory();}
 
 // ── RENDER: REPORTS ──
