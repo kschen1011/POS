@@ -156,7 +156,11 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
 </div>
 <div id="topbar">
   <span class="tb-logo">🍪 半吊子廚房 POS</span>
-  <div class="tb-st"><div class="sdot" id="sdot"></div><span id="slbl" style="color:rgba(255,255,255,.8)">連線中...</span></div>
+  <div class="tb-st" style="cursor:pointer" onclick="refreshIfStale(true)" title="點此手動同步">
+    <div class="sdot" id="sdot"></div>
+    <span id="slbl" style="color:rgba(255,255,255,.8)">連線中...</span>
+    <span style="color:rgba(255,255,255,.5);font-size:10px;margin-left:2px">↻</span>
+  </div>
 </div>
 <div id="alert-banner">⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。</div>
 <div id="main">
@@ -171,14 +175,13 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
   </div>
   <div class="view" id="v-rep">
     <div class="stabs" id="rep-tabs">
-      <button class="stab on" onclick="setRepTab('today')">📅 今日</button>
+      <button class="stab on" onclick="setRepTab('today')">📅 日報表</button>
       <button class="stab" onclick="setRepTab('month')">📊 月報表</button>
       <button class="stab" onclick="setRepTab('year')">🏆 年度排行</button>
       <button class="stab" onclick="setRepTab('mv')">📋 進出庫</button>
     </div>
     <div id="rep-body"></div>
   </div>
-  <div class="view" id="v-prod"><div id="prod-body"></div></div>
   <div class="view" id="v-set">
     <div class="stabs" id="set-tabs">
       <button class="stab on" onclick="setSetTab('prods')">🏷 商品管理</button>
@@ -193,7 +196,6 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
   <button class="nb on" id="nb-pos" onclick="setTab('pos')"><span class="ico">🛒</span><span class="lbl">收銀</span></button>
   <button class="nb" id="nb-inv" onclick="setTab('inv')"><span class="ico">📦</span><span class="lbl">庫存</span></button>
   <button class="nb" id="nb-rep" onclick="setTab('rep')"><span class="ico">📊</span><span class="lbl">報表</span></button>
-  <button class="nb" id="nb-prod" onclick="setTab('prod')"><span class="ico">👩‍🍳</span><span class="lbl">生產</span></button>
   <button class="nb" id="nb-set" onclick="setTab('set')"><span class="ico">⚙️</span><span class="lbl">設定</span></button>
 </div>
 <script>
@@ -290,10 +292,13 @@ const BOM={
 
 // ── State ──
 let prods=[],mats=[],stks={},batches={},mvs=[],salesCache={};
+let lastLoadTime=0;
+const STALE_MS=8*60*1000; // 8 分鐘未同步視為過期
 let cart=[],custType='walkin',modMode=null,customAmt=null;
 let curTab='pos',invTab='goods',repTab='today',setTab_='prods';
 let inFormOpen={},adjFormOpen={},editBatch=null;
-let plan={},addFormOpen=null,mvTab='all',mvInOpen=false;
+let addFormOpen=null,mvTab='all',mvInOpen=false;
+let repDate=today(); // 日報表選取日期
 let repMonth=ymStr(new Date()),repYear=new Date().getFullYear();
 
 // ── Firebase ──
@@ -303,6 +308,31 @@ function setSyncStatus(ok){
   const d=document.getElementById('sdot'),l=document.getElementById('slbl');
   if(d)d.className='sdot '+(ok?'ok':'err');
   if(l)l.textContent=ok?'已連線':'離線';
+}
+// 刷新目前畫面
+function rerenderCurrent(){
+  if(curTab==='pos')renderPOS();
+  else if(curTab==='inv')renderInventory();
+  else if(curTab==='rep')renderReports();
+  else renderSettings();
+}
+// 若資料過期則重新載入
+async function refreshIfStale(force=false){
+  if(!force && Date.now()-lastLoadTime < STALE_MS) return;
+  console.log('資料過期，重新同步...');
+  await loadAll();
+  updateAlertBanner();
+  rerenderCurrent();
+  updateSyncLabel();
+}
+// 更新頂部「X分鐘前同步」顯示
+function updateSyncLabel(){
+  const l=document.getElementById('slbl');
+  if(!l||!lastLoadTime)return;
+  const mins=Math.floor((Date.now()-lastLoadTime)/60000);
+  if(mins<1)l.textContent='剛剛同步';
+  else if(mins<60)l.textContent=mins+'分鐘前同步';
+  else l.textContent='已逾1小時未同步';
 }
 
 // ── Utils ──
@@ -341,12 +371,17 @@ async function loadAll(){
     if(is.exists){stks=is.data().stks||{};mats=is.data().mats||[];}
     if(bs.exists)batches=bs.data().items||{};
     if(ms.exists)mvs=ms.data().mvs||[];
-    // Fallback: if products still empty, re-run migration (handles stale Firebase state)
-    if(!prods||prods.length===0){
-      console.warn('Products empty after load, running migration...');
-      await runMigration();
-    }
     await loadSalesMonth(ymStr(new Date()));
+    // Safety check: if products still empty after load, just warn (DO NOT wipe data)
+    if(!prods||prods.length===0){
+      console.warn('Products empty after load - possible Firebase read error. Will retry.');
+      // Retry once after 2 seconds instead of wiping data
+      setTimeout(async()=>{
+        try{const ps=await pos.doc('products').get();if(ps.exists)prods=ps.data().items||[];renderPOS();}
+        catch(e){console.error('Retry failed',e);}
+      }, 2000);
+    }
+    lastLoadTime=Date.now();
     setSyncStatus(true);
   }catch(e){console.error('loadAll',e);setSyncStatus(false);}
 }
@@ -500,35 +535,6 @@ async function editBatchDate(pid,bi,newDate){
 }
 
 // ── Production ──
-function calcBOMNeeds(){
-  const needs={};
-  for(const pid in plan){
-    const qty=plan[pid]||0;if(qty<=0)continue;
-    const bom=BOM[Number(pid)];if(!bom)continue;
-    for(const mid in bom)needs[mid]=(needs[mid]||0)+bom[mid]*qty;
-  }
-  const res={};
-  for(const mid in needs){const m=getMat(Number(mid));const av=m?m.stock:0;res[mid]={needed:needs[mid],available:av,ok:av>=needs[mid]};}
-  return res;
-}
-async function confirmProduction(){
-  const needs=calcBOMNeeds();
-  if(!Object.values(needs).every(n=>n.ok)){alert('原料不足，無法確認生產！');return;}
-  if(!confirm('確認生產並扣減原料、新增成品庫存？'))return;
-  for(const mid in needs){const m=getMat(Number(mid));if(m)m.stock=Math.max(0,m.stock-needs[mid]);}
-  for(const pid in plan){
-    const qty=plan[pid]||0;if(qty<=0)continue;
-    const p=getProd(Number(pid));if(!p)continue;
-    stks[pid]=(stks[pid]||0)+qty;
-    if(!batches[pid])batches[pid]=[];
-    batches[pid].push({date:today(),qty});
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid:Number(pid),name:p.name,type:'in',qty,reason:'生產入庫',batchDate:today()});
-  }
-  plan={};
-  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
-  updateAlertBanner();renderProduction();
-  alert('✅ 生產完成！庫存已更新。');
-}
 
 // ── Tab Nav ──
 function setTab(t){
@@ -537,8 +543,13 @@ function setTab(t){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('v-'+t)?.classList.add('show');
   document.getElementById('nb-'+t)?.classList.add('on');
-  if(t==='pos')renderPOS();else if(t==='inv')renderInventory();
-  else if(t==='rep')renderReports();else if(t==='prod')renderProduction();else renderSettings();
+  // 切換頁籤時若資料過期則先重新載入再渲染
+  if(Date.now()-lastLoadTime > STALE_MS){
+    refreshIfStale(true).then(()=>{});
+  } else {
+    if(t==='pos')renderPOS();else if(t==='inv')renderInventory();
+    else if(t==='rep')renderReports();else renderSettings();
+  }
 }
 function setInvTab(t){
   invTab=t;
@@ -786,8 +797,15 @@ function renderReports(){
   else renderRepMv(el);
 }
 function getTodaySales(){
-  const ym=ymStr(new Date()),td=today();
-  return(salesCache[ym]||[]).filter(s=>datStr(new Date(s.ts))===td);
+  return getDaySales(repDate);
+}
+async function loadDateSales(dateStr){
+  const ym=dateStr.slice(0,4)+dateStr.slice(5,7);
+  if(!salesCache[ym]) await loadSalesMonth(ym);
+}
+function getDaySales(dateStr){
+  const ym=dateStr.slice(0,4)+dateStr.slice(5,7);
+  return(salesCache[ym]||[]).filter(s=>datStr(new Date(s.ts))===dateStr);
 }
 function flavorChart(ss,title){
   const fm={};
@@ -804,15 +822,36 @@ function flavorChart(ss,title){
   return h+`</div></div>`;
 }
 function renderRepToday(el){
-  const ss=getTodaySales();
+  const isToday=repDate===today();
+  const ss=getDaySales(repDate);
   const total=ss.reduce((s,r)=>s+r.total,0),disc=ss.reduce((s,r)=>s+(r.discount||0),0);
+  const tq=ss.reduce((s,r)=>s+r.items.reduce((q,i)=>q+i.qty,0),0);
   const wA=ss.filter(s=>!s.custType||s.custType==='walkin').reduce((s,r)=>s+r.total,0);
   const oA=ss.filter(s=>s.custType==='online').reduce((s,r)=>s+r.total,0);
   const wC=ss.filter(s=>!s.custType||s.custType==='walkin').length;
   const oC=ss.filter(s=>s.custType==='online').length;
-  let h=`<div class="statrow">
-    <div class="statcard"><div class="sv">NT$${total.toLocaleString()}</div><div class="sl">今日營業額</div></div>
+  // prev/next day helpers
+  const d=new Date(repDate+'T00:00:00');
+  const prev=datStr(new Date(d.getTime()-86400000));
+  const next=datStr(new Date(d.getTime()+86400000));
+  const nextDisabled=repDate>=today();
+  let h=`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button class="btn btn-s btn-sm" onclick="changeRepDate('${prev}')">◀</button>
+    <input type="date" id="rep-date-inp" value="${repDate}" max="${today()}"
+      style="flex:1;padding:8px;border:1.5px solid var(--bdr);border-radius:10px;font-size:15px;font-weight:700;text-align:center;background:#fff"
+      onchange="changeRepDate(this.value)">
+    <button class="btn btn-s btn-sm" onclick="changeRepDate('${next}')" ${nextDisabled?'disabled':''}>▶</button>
+    ${isToday?'<span style="background:var(--p);color:#fff;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">今日</span>':''}
+  </div>`;
+  // Flavor detail table (per product sold qty)
+  const fm={};
+  ss.forEach(s=>s.items.forEach(i=>{const p=getProd(i.pid)||{name:i.name||'未知'};fm[p.name]=(fm[p.name]||0)+i.qty;}));
+  const sortedFm=Object.entries(fm).sort((a,b)=>b[1]-a[1]);
+  h+=`<div class="statrow">
+    <div class="statcard"><div class="sv">NT$${total.toLocaleString()}</div><div class="sl">當日營業額</div></div>
     <div class="statcard"><div class="sv">${ss.length}</div><div class="sl">交易筆數</div></div>
+    <div class="statcard blue"><div class="sv">${tq}</div><div class="sl">銷售件數</div></div>
     <div class="statcard green"><div class="sv">NT$${disc.toLocaleString()}</div><div class="sl">折扣折抵</div></div>
   </div>
   <div class="card"><div class="card-title">來客類型分析</div>
@@ -821,11 +860,46 @@ function renderRepToday(el){
       <div class="ct-info onl"><div class="civ">NT$${oA.toLocaleString()}</div><div class="cil">📱 預訂 · ${oC}筆</div></div>
     </div>
   </div>`;
-  h+=flavorChart(ss,'🍪 口味銷售');
-  h+=`<div class="card"><div class="fb mb8"><span class="card-title">交易記錄</span><button class="btn btn-d btn-xs" onclick="clearToday()">清空今日</button></div>`;
-  if(!ss.length)h+=`<div class="txt-muted">今日尚無交易</div>`;
+  // Flavor bar chart + quantity table
+  h+=`<div class="card"><div class="card-title">🍪 各口味銷售數量</div>`;
+  if(!sortedFm.length){h+=`<div class="txt-muted">當日尚無銷售記錄</div>`;}
   else{
-    const ym=ymStr(new Date());
+    const mx=sortedFm[0][1];
+    h+=`<div class="barchart" style="margin-bottom:10px">`;
+    sortedFm.forEach(([nm,qty],i)=>{
+      const med=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      h+=`<div class="brow"><div class="blbl">${med}${esc(nm)}</div><div class="btrack"><div class="bfill" style="width:${(qty/mx*100).toFixed(0)}%"></div></div><div class="bval">${qty}</div></div>`;
+    });
+    h+=`</div>`;
+    // Detail table with revenue
+    h+=`<table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="border-bottom:2px solid var(--bdr)">
+        <th style="text-align:left;padding:5px 4px;color:var(--muted);font-weight:600">品項</th>
+        <th style="text-align:center;padding:5px 4px;color:var(--muted);font-weight:600">數量</th>
+        <th style="text-align:right;padding:5px 4px;color:var(--muted);font-weight:600">營業額</th>
+      </tr>`;
+    sortedFm.forEach(([nm,qty])=>{
+      const rev=ss.reduce((s,r)=>{const si=r.items.find(i=>(getProd(i.pid)||{name:i.name}).name===nm);return s+(si?si.qty*si.unitPrice:0);},0);
+      h+=`<tr style="border-bottom:1px solid var(--bdr)">
+        <td style="padding:6px 4px">${esc(nm)}</td>
+        <td style="text-align:center;padding:6px 4px;font-weight:700">${qty}</td>
+        <td style="text-align:right;padding:6px 4px;color:var(--p);font-weight:700">NT$${rev.toLocaleString()}</td>
+      </tr>`;
+    });
+    h+=`<tr style="font-weight:800;border-top:2px solid var(--bdr)">
+      <td style="padding:7px 4px">合計</td>
+      <td style="text-align:center;padding:7px 4px">${tq}</td>
+      <td style="text-align:right;padding:7px 4px;color:var(--p)">NT$${total.toLocaleString()}</td>
+    </tr></table>`;
+  }
+  h+=`</div>`;
+  // Transaction list
+  const ym=repDate.slice(0,4)+repDate.slice(5,7);
+  h+=`<div class="card"><div class="fb mb8"><span class="card-title">交易記錄</span>`;
+  if(isToday) h+=`<button class="btn btn-d btn-xs" onclick="clearToday()">清空今日</button>`;
+  h+=`</div>`;
+  if(!ss.length)h+=`<div class="txt-muted">當日尚無交易記錄</div>`;
+  else{
     [...ss].reverse().forEach(s=>{
       const ct=s.custType==='online'?'online':'walkin';
       h+=`<div class="sli">
@@ -842,12 +916,20 @@ function renderRepToday(el){
       </div>`;
     });
   }
-  h+=`</div>`;el.innerHTML=h;
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+async function changeRepDate(d){
+  if(!d||d>today()) return;
+  repDate=d;
+  const ym=d.slice(0,4)+d.slice(5,7);
+  if(!salesCache[ym]) await loadSalesMonth(ym);
+  renderReports();
 }
 async function clearToday(){
-  if(!confirm('確定清空今日交易？此操作不還原庫存。'))return;
-  const ym=ymStr(new Date()),td=today();
-  if(salesCache[ym])salesCache[ym]=salesCache[ym].filter(s=>datStr(new Date(s.ts))!==td);
+  if(!confirm('確定清空今日（'+repDate+'）的交易？此操作不還原庫存。'))return;
+  const ym=repDate.slice(0,4)+repDate.slice(5,7);
+  if(salesCache[ym])salesCache[ym]=salesCache[ym].filter(s=>datStr(new Date(s.ts))!==repDate);
   await saveSales(ym);renderReports();
 }
 async function renderRepMonth(el){
@@ -1002,38 +1084,6 @@ function exportCSV(ym){
   a.download='半吊子廚房_'+ym+'.csv';a.click();
 }
 
-// ── RENDER: PRODUCTION ──
-function renderProduction(){
-  const el=document.getElementById('prod-body');if(!el)return;
-  const needs=calcBOMNeeds(),allOk=Object.values(needs).every(n=>n.ok);
-  const hasP=Object.values(plan).some(q=>q>0);
-  let h=`<div class="card"><div class="card-title">👩‍🍳 生產排程</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">輸入各品項生產罐數，系統自動試算原料需求</div>`;
-  const canProd=prods.filter(p=>p.category==='snowball'&&BOM[p.id]);
-  const noBOM=prods.filter(p=>p.category==='snowball'&&!BOM[p.id]);
-  canProd.forEach(p=>{
-    h+=`<div class="pp-item">
-      <div class="pp-nm">${esc(p.name)}</div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button class="abtn" onclick="adjPlan(${p.id},-1)">−</button>
-        <input class="pp-input" type="number" min="0" value="${plan[p.id]||0}" oninput="plan[${p.id}]=Math.max(0,parseInt(this.value)||0);renderProduction()" id="pp-${p.id}">
-        <button class="abtn" onclick="adjPlan(${p.id},1)">+</button>
-      </div>
-    </div>`;
-  });
-  if(noBOM.length)h+=`<div style="margin-top:8px;padding:8px;background:#FFF3E0;border-radius:8px;font-size:12px;color:var(--warn)">⚠️ BOM待補充，暫不計算：${noBOM.map(p=>p.name).join('、')}</div>`;
-  h+=`</div>`;
-  if(hasP){
-    h+=`<div class="card"><div class="card-title">原料需求試算</div>`;
-    for(const mid in needs){
-      const{needed,available,ok}=needs[mid];const m=getMat(Number(mid));
-      h+=`<div class="bom-row ${ok?'ok':'nok'}"><span>${esc(m?m.name:'原料'+mid)}</span><span>需 ${needed.toFixed(3)} kg / 現有 ${available.toFixed(3)} ${ok?'✅':'❌'}</span></div>`;
-    }
-    h+=`<button class="btn ${allOk?'btn-p':'btn-s'} btn-full mt8" ${allOk?'':'disabled'} onclick="confirmProduction()">${allOk?'✅ 確認生產':'❌ 原料不足，無法生產'}</button></div>`;
-  }
-  el.innerHTML=h;
-}
-function adjPlan(pid,d){plan[pid]=Math.max(0,(plan[pid]||0)+d);renderProduction();}
 
 // ── RENDER: SETTINGS ──
 function renderSettings(){
@@ -1181,6 +1231,18 @@ async function init(){
     const ld=document.getElementById('ld');
     if(ld){ld.classList.add('hide');setTimeout(()=>{ld.style.display='none';},450);}
   },900);
+
+  // ── 自動同步機制 ──
+  // 1. 每分鐘更新「X分鐘前同步」標籤
+  setInterval(updateSyncLabel, 60000);
+  // 2. 每 8 分鐘主動重新拉取資料（防止多裝置資料不一致）
+  setInterval(()=>refreshIfStale(), 60000);
+  // 3. 切回頁面時立即檢查是否過期
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden) refreshIfStale();
+  });
+  // 4. 每次切換 tab 時順帶刷新
+  const origSetTab=setTab;
 }
 init();
 </script>
