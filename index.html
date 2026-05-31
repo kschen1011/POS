@@ -145,6 +145,69 @@ body.has-banner{--bh:40px}
 body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset-bottom,0px))}
 @media(min-width:480px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.pgrid{grid-template-columns:repeat(4,1fr)}.statrow{grid-template-columns:repeat(4,1fr)}}
+
+/* ── Receipt Modal ── */
+#receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
+#receipt-overlay.show{display:flex}
+#receipt-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px 20px 44px}
+.rcpt-head{text-align:center;padding-bottom:16px;border-bottom:2px dashed #e0d0c0;margin-bottom:14px}
+.rcpt-brand{font-size:28px;margin-bottom:4px}
+.rcpt-shop{font-size:17px;font-weight:800;color:#1a1a1a;letter-spacing:.05em}
+.rcpt-meta{font-size:12px;color:#999;margin-top:5px;line-height:1.7}
+.rcpt-items{margin-bottom:12px}
+.rcpt-row{display:flex;align-items:baseline;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0e8df}
+.rcpt-row:last-child{border-bottom:none}
+.rcpt-nm{font-size:14px;font-weight:600;color:#2c2c2c;flex:1}
+.rcpt-qty{font-size:12px;color:#888;margin:0 8px;white-space:nowrap}
+.rcpt-amt{font-size:14px;font-weight:700;white-space:nowrap}
+.rcpt-disc{text-align:right;font-size:12px;color:#27AE60;margin-bottom:6px}
+.rcpt-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:2px solid #1a1a1a;margin-top:4px}
+.rcpt-total-lbl{font-size:15px;font-weight:700}
+.rcpt-total-amt{font-size:24px;font-weight:800;color:#C2440A}
+.rcpt-confirm{width:100%;padding:15px;background:#C2440A;color:#fff;border-radius:12px;font-size:16px;font-weight:800;border:none;cursor:pointer;margin-top:16px;letter-spacing:.03em}
+.rcpt-confirm:active{background:#a0360a}
+
+/* ── Batch location tags ── */
+.bloc-store{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#E8F5E9;color:#2E7D32;margin-left:4px}
+.bloc-consign{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#FFF3E0;color:#E65100;margin-left:4px}
+.bloc-returned{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#E3F2FD;color:#1565C0;margin-left:4px}
+.bi-act{display:flex;gap:4px;margin-top:5px}
+.bi-act-btn{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--bdr);background:#fff;cursor:pointer;font-weight:600}
+.bi-act-btn.consign-btn{background:#FFF3E0;border-color:#E65100;color:#E65100}
+.bi-act-btn.return-btn{background:#E8F5E9;border-color:#27AE60;color:#27AE60}
+.bi.consign{background:#FFF8F0;border-left:3px solid #E65100}
+.batch-made-at{font-size:10px;color:#aaa;margin-top:2px}
+
+
+/* ── Pre-order styles ── */
+.po-bar-section{background:#EFF6FF;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1.5px solid #BFDBFE}
+.po-bar-label{font-size:11px;font-weight:700;color:#1D4ED8;margin-bottom:6px}
+.po-date-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.po-date-inp{flex:1;padding:8px 10px;border:1.5px solid #93C5FD;border-radius:8px;font-size:13px;font-weight:600;color:#1D4ED8;background:#fff}
+.po-note-inp{width:100%;padding:6px 10px;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;margin-bottom:8px;background:#fff}
+.po-btn{width:100%;padding:13px;background:#1D4ED8;color:#fff;border-radius:10px;font-size:15px;font-weight:800;border:none;cursor:pointer}
+.po-btn:active{background:#1E40AF}
+.po-btn.today-btn{background:var(--p)}
+
+.po-item{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #93C5FD}
+.po-item.today{border-left-color:var(--err);background:#FFF5F5}
+.po-item.tomorrow{border-left-color:var(--warn);background:#FFFBF0}
+.po-item.fulfilled{border-left-color:var(--ok);opacity:.7}
+.po-item.cancelled{border-left-color:var(--muted);opacity:.5}
+.po-item-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.po-item-date{font-size:14px;font-weight:800}
+.po-item-total{font-size:15px;font-weight:800;color:var(--p)}
+.po-item-note{font-size:11px;color:var(--muted);margin-bottom:6px}
+.po-item-products{font-size:12px;color:#555;margin-bottom:8px;line-height:1.7}
+.po-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;display:inline-block}
+.po-status.pending{background:#DBEAFE;color:#1D4ED8}
+.po-status.today{background:#FEE2E2;color:var(--err)}
+.po-status.fulfilled{background:#D1FAE5;color:#065F46}
+.po-status.cancelled{background:#F3F4F6;color:#6B7280}
+.po-actions{display:flex;gap:6px;margin-top:8px}
+.po-count-badge{background:#1D4ED8;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px}
+.po-alert{background:#1D4ED8}
+
 </style>
 </head>
 <body>
@@ -179,6 +242,7 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
       <button class="stab" onclick="setRepTab('month')">📊 月報表</button>
       <button class="stab" onclick="setRepTab('year')">🏆 年度排行</button>
       <button class="stab" onclick="setRepTab('mv')">📋 進出庫</button>
+      <button class="stab" id="stab-preorders" onclick="setRepTab('preorders')">📦 預訂單</button>
     </div>
     <div id="rep-body"></div>
   </div>
@@ -192,6 +256,9 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
   </div>
 </div>
 <div id="pos-bar"></div>
+<div id="receipt-overlay" onclick="if(event.target===this)closeReceipt()">
+  <div id="receipt-sheet"></div>
+</div>
 <div id="nav">
   <button class="nb on" id="nb-pos" onclick="setTab('pos')"><span class="ico">🛒</span><span class="lbl">收銀</span></button>
   <button class="nb" id="nb-inv" onclick="setTab('inv')"><span class="ico">📦</span><span class="lbl">庫存</span></button>
@@ -291,7 +358,7 @@ const BOM={
 };
 
 // ── State ──
-let prods=[],mats=[],stks={},batches={},mvs=[],salesCache={};
+let prods=[],mats=[],stks={},batches={},mvs=[],salesCache={},preorders=[];
 let lastLoadTime=0;
 const STALE_MS=8*60*1000; // 8 分鐘未同步視為過期
 let cart=[],custType='walkin',modMode=null,customAmt=null;
@@ -358,19 +425,42 @@ function hasExpBatch(pid){
   return(batches[pid]||[]).some(b=>b.qty>0&&daysDiff(b.date)>=10);
 }
 function updateAlertBanner(){
-  const show=hasExpBatches();
-  document.getElementById('alert-banner')?.classList.toggle('show',show);
+  const hasExp=hasExpBatches();
+  const todayPO=getTodayDeliveries().length;
+  const show=hasExp||todayPO>0;
+  const banner=document.getElementById('alert-banner');
+  if(banner){
+    if(todayPO>0&&hasExp)banner.textContent='⚠️ 有雪球批次超過10天！ 且 今日有 '+todayPO+' 筆預訂單待出貨';
+    else if(todayPO>0)banner.textContent='📦 今日有 '+todayPO+' 筆預訂單待出貨，請前往「報表→預訂單」確認';
+    else banner.textContent='⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。';
+    banner.classList.toggle('show',show);
+    banner.style.background=todayPO>0&&!hasExp?'#1D4ED8':'';
+  }
   document.body.classList.toggle('has-banner',show);
+  // Update preorders tab badge
+  const stab=document.getElementById('stab-preorders');
+  if(stab){
+    const count=getPendingCount();
+    const existing=stab.querySelector('.po-count-badge');
+    if(existing)existing.remove();
+    if(count>0){const b=document.createElement('span');b.className='po-count-badge';b.textContent=count;stab.appendChild(b);}
+  }
 }
 
 // ── Data Load/Save ──
 async function loadAll(){
   try{
-    const[ps,is,bs,ms]=await Promise.all([pos.doc('products').get(),pos.doc('inventory').get(),pos.doc('batches').get(),pos.doc('movements').get()]);
+    const[ps,is,bs,ms,pr]=await Promise.all([pos.doc('products').get(),pos.doc('inventory').get(),pos.doc('batches').get(),pos.doc('movements').get(),pos.doc('preorders').get()]);
     if(ps.exists)prods=ps.data().items||[];
     if(is.exists){stks=is.data().stks||{};mats=is.data().mats||[];}
-    if(bs.exists)batches=bs.data().items||{};
+    if(bs.exists){
+      const raw=bs.data().items||{};
+      // 載入時清除 qty<=0 的殘留批次，避免舊資料觸發錯誤警告
+      for(const pid in raw){raw[pid]=(raw[pid]||[]).filter(b=>Number(b.qty)>0);}
+      batches=raw;
+    }
     if(ms.exists)mvs=ms.data().mvs||[];
+    if(pr.exists)preorders=pr.data().items||[];
     await loadSalesMonth(ymStr(new Date()));
     // Safety check: if products still empty after load, just warn (DO NOT wipe data)
     if(!prods||prods.length===0){
@@ -391,8 +481,17 @@ async function loadSalesMonth(ym){
 }
 async function saveProds(){await pos.doc('products').set({items:prods});}
 async function saveInv(){await pos.doc('inventory').set({stks,mats});}
-async function saveBatches(){await pos.doc('batches').set({items:batches});}
+async function saveBatches(){
+  // 存檔前過濾掉所有 qty<=0 的批次，防止垃圾資料累積
+  const clean={};
+  for(const pid in batches){
+    const f=(batches[pid]||[]).filter(b=>Number(b.qty)>0);
+    if(f.length>0)clean[pid]=f;
+  }
+  await pos.doc('batches').set({items:clean});
+}
 async function saveMvs(){if(mvs.length>500)mvs=mvs.slice(-500);await pos.doc('movements').set({mvs});}
+async function savePreorders(){await pos.doc('preorders').set({items:preorders});}
 async function saveSales(ym){await pos.doc('sales_'+ym).set({items:salesCache[ym]||[]});}
 
 // ── Migration ──
@@ -465,24 +564,36 @@ function getDisc(){
 
 // ── FIFO ──
 function fifoDeduct(pid,qty){
-  const bs=(batches[pid]||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  // 先進先出扣減，同時記錄「從哪批扣了幾個」，供刪除交易時還原用
+  const bs=(batches[pid]||[]).filter(b=>b.location!=='consignment').sort((a,b)=>new Date(a.date)-new Date(b.date));
   let rem=qty;
-  for(const b of bs){if(rem<=0)break;const take=Math.min(b.qty,rem);b.qty-=take;rem-=take;}
-  batches[pid]=bs.filter(b=>b.qty>0);
-  // 修正：無論是否有批次記錄，庫存一律扣減實際售出數量
-  // 舊版：stks[pid] - qty + rem → 批次為空時 rem=qty 導致庫存未變
+  const deductions=[];
+  for(const b of bs){
+    if(rem<=0)break;
+    const take=Math.min(b.qty,rem);
+    b.qty-=take;
+    rem-=take;
+    deductions.push({date:b.date,qty:take,madeAt:b.madeAt||null,location:b.location||'store'});
+  }
+  batches[pid]=(batches[pid]||[]).filter(b=>b.qty>0);
   stks[pid]=Math.max(0,(stks[pid]||0)-qty);
+  return deductions; // 回傳扣減批次紀錄
 }
 
 // ── Checkout ──
 async function checkout(){
   if(!cart.length)return;
   const total=calcTotal(),disc=getDisc(),ym=ymStr(new Date());
-  const rec={id:genId(),ts:new Date().toISOString(),items:cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};}),total,discount:disc,custType};
+  // 建立銷售紀錄，並在 fifoDeduct 後記錄批次扣減資訊（供刪除時還原用）
+  const recItems=cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};});
+  const rec={id:genId(),ts:new Date().toISOString(),items:recItems,total,discount:disc,custType};
   for(const c of cart){
     const p=getProd(c.pid);if(!p)continue;
-    fifoDeduct(c.pid,c.qty);
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,reason:'POS銷售['+(custType==='walkin'?'現場':'預訂')+']'});
+    const deds=fifoDeduct(c.pid,c.qty); // 取得批次扣減紀錄
+    const item=rec.items.find(i=>i.pid===c.pid);
+    if(item&&deds.length>0)item.batchDeductions=deds; // 寫入銷售紀錄
+    const batchInfo=deds.length>0?deds.map(d=>d.date).join(','):'未知';
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,reason:'POS銷售['+(custType==='walkin'?'現場':'預訂')+'] 批次:'+batchInfo});
   }
   if(!salesCache[ym])salesCache[ym]=[];
   salesCache[ym].push(rec);
@@ -490,7 +601,7 @@ async function checkout(){
   catch(e){setSyncStatus(false);}
   cart=[];modMode=null;customAmt=null;
   updateAlertBanner();renderPOS();
-  alert('✅ 結帳成功！\n金額：NT$'+total.toLocaleString()+(disc>0?'\n折抵：-NT$'+disc:''));
+  showReceipt(rec, disc);
 }
 async function deleteSale(ym,id){
   if(!confirm('確定刪除這筆交易並還原庫存？'))return;
@@ -499,8 +610,24 @@ async function deleteSale(ym,id){
   for(const si of sale.items){
     stks[si.pid]=(stks[si.pid]||0)+si.qty;
     if(!batches[si.pid])batches[si.pid]=[];
-    batches[si.pid].push({date:today(),qty:si.qty});
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid:si.pid,name:si.name,type:'adjust',qty:si.qty,reason:'刪除銷售還原'});
+    if(si.batchDeductions&&si.batchDeductions.length>0){
+      // ✅ 有批次紀錄：還原回原始製作日期的批次
+      for(const ded of si.batchDeductions){
+        const existing=batches[si.pid].find(b=>b.date===ded.date&&b.location!=='consignment');
+        if(existing){
+          existing.qty+=ded.qty; // 原批次還有剩，直接加回去
+        } else {
+          // 原批次已清空，重建該批次
+          batches[si.pid].push({date:ded.date,qty:ded.qty,madeAt:ded.madeAt||null,location:'store',note:'刪除交易還原'});
+        }
+      }
+      const batchDates=si.batchDeductions.map(d=>d.date+' ×'+d.qty).join(', ');
+      mvs.push({id:genId(),ts:new Date().toISOString(),pid:si.pid,name:si.name,type:'adjust',qty:si.qty,reason:'刪除銷售還原（批次：'+batchDates+'）'});
+    } else {
+      // ⚠️ 舊筆交易無批次紀錄，退回今天（相容舊資料）
+      batches[si.pid].push({date:today(),qty:si.qty,note:'刪除舊交易還原-無批次資訊'});
+      mvs.push({id:genId(),ts:new Date().toISOString(),pid:si.pid,name:si.name,type:'adjust',qty:si.qty,reason:'刪除銷售還原（舊資料-無批次紀錄）'});
+    }
   }
   salesCache[ym].splice(idx,1);
   await Promise.all([saveSales(ym),saveInv(),saveBatches(),saveMvs()]);
@@ -513,7 +640,7 @@ async function addStock(pid,qty,bDate){
   const p=getProd(pid);if(!p)return;
   stks[pid]=(stks[pid]||0)+qty;
   if(!batches[pid])batches[pid]=[];
-  batches[pid].push({date:bDate||today(),qty});
+  batches[pid].push({date:bDate||today(),qty,madeAt:new Date().toISOString(),location:'store'});
   mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p.name,type:'in',qty,reason:'進貨(批次:'+(bDate||today())+')',batchDate:bDate||today()});
   inFormOpen[pid]=false;
   await Promise.all([saveInv(),saveBatches(),saveMvs()]);
@@ -522,11 +649,25 @@ async function addStock(pid,qty,bDate){
 async function adjustStock(pid,qty,reason){
   if(!reason)return;
   const p=getProd(pid);
-  stks[pid]=Math.max(0,(stks[pid]||0)+qty);
+  if(qty<0){
+    // 減少：LIFO 從最新批次扣（農會出貨邏輯）
+    const absQty=Math.abs(qty);
+    const bs=(batches[pid]||[]).filter(b=>b.location!=='consignment').sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let rem=absQty;
+    for(const b of bs){if(rem<=0)break;const take=Math.min(b.qty,rem);b.qty-=take;rem-=take;}
+    batches[pid]=(batches[pid]||[]).filter(b=>b.qty>0);
+    stks[pid]=Math.max(0,(stks[pid]||0)+qty);
+  } else if(qty>0){
+    if(!batches[pid])batches[pid]=[];
+    // 詢問製作日期（預設今天），讓批次日期正確
+    const makeDate=prompt('請輸入這批雪球的製作日期（格式 YYYY-MM-DD）',today())||today();
+    batches[pid].push({date:makeDate,qty,madeAt:new Date().toISOString(),location:'store',note:reason});
+    stks[pid]=(stks[pid]||0)+qty;
+  }
   mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'adjust',qty,reason});
   adjFormOpen[pid]=false;
-  await Promise.all([saveInv(),saveMvs()]);
-  renderInventory();
+  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+  updateAlertBanner();renderInventory();
 }
 async function editBatchDate(pid,bi,newDate){
   if(!batches[pid]||!batches[pid][bi])return;
@@ -558,7 +699,7 @@ function setInvTab(t){
 }
 function setRepTab(t){
   repTab=t;
-  document.querySelectorAll('#rep-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['today','month','year','mv'][i]===t));
+  document.querySelectorAll('#rep-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['today','month','year','mv','preorders'][i]===t));
   renderReports();
 }
 function setSetTab(t){
@@ -634,15 +775,31 @@ function renderPOSBar(){
   bar.classList.add('show');
   document.body.classList.add('has-cart');
   const total=calcTotal(),disc=getDisc();
+  const isOnline=custType==='online';
+  const poDate=document.getElementById('po-date-input')?.value||today();
+  const isFuture=poDate>today();
   bar.innerHTML=`
     <div class="pos-bar-row">
       <span class="pos-bar-total">合計 NT$${total.toLocaleString()}</span>
       ${disc>0?'<span class="pos-bar-disc">員工特約折抵 -NT$'+disc+'</span>':''}
       ${modMode==='pr'?'<span class="pos-bar-disc" style="color:var(--warn)">公關出貨 NT$0</span>':''}
     </div>
+    ${isOnline?`<div class="po-bar-section">
+      <div class="po-bar-label">📦 出貨日期</div>
+      <div class="po-date-row">
+        <input type="date" id="po-date-input" class="po-date-inp" value="${poDate}" min="${today()}" onchange="renderPOSBar()">
+        <span style="font-size:11px;color:${isFuture?'#1D4ED8':'var(--ok)'}">
+          ${isFuture?'📋 建立預訂單':'⚡ 今日出貨'}
+        </span>
+      </div>
+      <input type="text" id="po-note-input" class="po-note-inp" placeholder="備註（客人名稱/電話後4碼）" value="">
+      <button class="po-btn ${isFuture?'':'today-btn'}" onclick="${isFuture?'doCreatePreorder()':'checkout()'}">
+        ${isFuture?'📋 建立預訂單 · 預留庫存':'📱 立即結帳 NT$'+total.toLocaleString()}
+      </button>
+    </div>`:`
     <button class="ck-btn" style="margin-top:0" onclick="checkout()">
-      ${custType==='walkin'?'🏪 現場':'📱 預訂'} 結帳 NT$${total.toLocaleString()}
-    </button>`;
+      🏪 現場結帳 NT$${total.toLocaleString()}
+    </button>`}`;
 }
 function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOS();}
 function setModMode(m){
@@ -652,6 +809,263 @@ function setModMode(m){
   renderPOS();renderPOSBar();
 }
 function applyCA(){customAmt=Math.max(0,parseInt(document.getElementById('ca-inp')?.value)||0);renderPOS();renderPOSBar();}
+
+// ── Receipt Modal ──
+function showReceipt(rec, disc) {
+  const d=new Date(rec.ts);
+  const timeStr=d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0')+' '+(d.getHours()+'').padStart(2,'0')+':'+(d.getMinutes()+'').padStart(2,'0');
+  const isOnline=rec.custType==='online';
+  const itemsHtml=rec.items.map(i=>`
+    <div class="rcpt-row">
+      <span class="rcpt-nm">${esc(i.name)}</span>
+      <span class="rcpt-qty">× ${i.qty}</span>
+      <span class="rcpt-amt">NT$${(i.unitPrice*i.qty).toLocaleString()}</span>
+    </div>`).join('');
+  document.getElementById('receipt-sheet').innerHTML=`
+    <div class="rcpt-head">
+      <div class="rcpt-brand">🍪</div>
+      <div class="rcpt-shop">半吊子廚房</div>
+      <div style="font-size:13px;color:#888;margin-top:3px">${isOnline?'📱 網路預訂':'🏪 現場消費'}</div>
+      <div class="rcpt-meta">${timeStr}</div>
+    </div>
+    <div class="rcpt-items">${itemsHtml}</div>
+    ${disc>0?'<div class="rcpt-disc">員工特約折抵 −NT$'+disc+'</div>':''}
+    <div class="rcpt-total">
+      <span class="rcpt-total-lbl">合計</span>
+      <span class="rcpt-total-amt">NT$${rec.total.toLocaleString()}</span>
+    </div>
+    <button class="rcpt-confirm" onclick="closeReceipt()">✅ 確認核對完成</button>`;
+  const overlay=document.getElementById('receipt-overlay');
+  overlay.classList.add('show');
+}
+function closeReceipt(){document.getElementById('receipt-overlay').classList.remove('show');}
+
+// ── Pre-order System ──
+function getPendingCount(){return preorders.filter(o=>o.status==='pending').length;}
+function getTodayDeliveries(){return preorders.filter(o=>o.status==='pending'&&o.deliveryDate===today());}
+
+function doCreatePreorder(){
+  const deliveryDate=document.getElementById('po-date-input')?.value||today();
+  const note=document.getElementById('po-note-input')?.value?.trim()||'';
+  if(deliveryDate<=today()){checkout();return;} // fallback: today = normal checkout
+  createPreorder(deliveryDate,note);
+}
+
+async function createPreorder(deliveryDate,note){
+  if(!cart.length)return;
+  const total=calcTotal(),disc=getDisc();
+  const recItems=cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};});
+  const order={
+    id:genId(),ts:new Date().toISOString(),
+    deliveryDate,note,
+    items:recItems,total,discount:disc,
+    status:'pending',custType:'online'
+  };
+  // Immediately reserve inventory (FIFO deduction)
+  for(const c of cart){
+    const p=getProd(c.pid);if(!p)continue;
+    const deds=fifoDeduct(c.pid,c.qty);
+    const item=order.items.find(i=>i.pid===c.pid);
+    if(item&&deds.length>0)item.batchDeductions=deds;
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,
+      reason:'預訂單預留[出貨:'+deliveryDate+']'});
+  }
+  preorders.push(order);
+  cart=[];modMode=null;customAmt=null;
+  try{
+    await Promise.all([savePreorders(),saveInv(),saveBatches(),saveMvs()]);
+    setSyncStatus(true);
+  }catch(e){setSyncStatus(false);}
+  updateAlertBanner();renderPOS();
+  showPreorderConfirm(order);
+}
+
+function showPreorderConfirm(order){
+  const itemsHtml=order.items.map(i=>`
+    <div class="rcpt-row">
+      <span class="rcpt-nm">${esc(i.name)}</span>
+      <span class="rcpt-qty">× ${i.qty}</span>
+      <span class="rcpt-amt">NT$${(i.unitPrice*i.qty).toLocaleString()}</span>
+    </div>`).join('');
+  document.getElementById('receipt-sheet').innerHTML=`
+    <div class="rcpt-head">
+      <div class="rcpt-brand">📋</div>
+      <div class="rcpt-shop">預訂單建立成功</div>
+      <div style="font-size:13px;color:#1D4ED8;margin-top:4px;font-weight:700">出貨日期：${order.deliveryDate}</div>
+      ${order.note?'<div style="font-size:12px;color:#888;margin-top:2px">備註：'+esc(order.note)+'</div>':''}
+    </div>
+    <div style="font-size:12px;background:#EFF6FF;border-radius:8px;padding:8px 10px;margin-bottom:12px;color:#1D4ED8">
+      ✅ 庫存已自動預留，現場客人無法購買此批商品
+    </div>
+    <div class="rcpt-items">${itemsHtml}</div>
+    ${order.discount>0?'<div class="rcpt-disc">折抵 −NT$'+order.discount+'</div>':''}
+    <div class="rcpt-total">
+      <span class="rcpt-total-lbl">預訂金額</span>
+      <span class="rcpt-total-amt" style="color:#1D4ED8">NT$${order.total.toLocaleString()}</span>
+    </div>
+    <button class="rcpt-confirm" style="background:#1D4ED8" onclick="closeReceipt()">✅ 確認完成</button>`;
+  document.getElementById('receipt-overlay').classList.add('show');
+}
+
+async function fulfillPreorder(id){
+  const idx=preorders.findIndex(o=>o.id===id);if(idx<0)return;
+  const order=preorders[idx];
+  if(!confirm('確認這筆預訂單已出貨完成？\n出貨日：'+order.deliveryDate+'\n金額：NT$'+order.total+(order.note?'\n備註：'+order.note:'')))return;
+  // Record as sale in the delivery month
+  const ym=ymStr(new Date(order.deliveryDate));
+  if(!salesCache[ym])await loadSalesMonth(ym);
+  if(!salesCache[ym])salesCache[ym]=[];
+  salesCache[ym].push({
+    id:order.id,
+    ts:order.deliveryDate+'T12:00:00.000Z',
+    items:order.items,total:order.total,discount:order.discount,
+    custType:'online',fulfilledAt:new Date().toISOString(),
+    fromPreorder:true
+  });
+  order.status='fulfilled';order.fulfilledAt=new Date().toISOString();
+  await Promise.all([savePreorders(),saveSales(ym)]);
+  renderReports();updateAlertBanner();
+  alert('✅ 出貨完成！已記錄到 '+order.deliveryDate+' 的銷售報表。');
+}
+
+async function cancelPreorder(id){
+  const idx=preorders.findIndex(o=>o.id===id);if(idx<0)return;
+  const order=preorders[idx];
+  if(!confirm('確定取消這筆預訂單並還原庫存？\n出貨日：'+order.deliveryDate+'\n金額：NT$'+order.total))return;
+  // Return inventory to original batches
+  for(const si of order.items){
+    stks[si.pid]=(stks[si.pid]||0)+si.qty;
+    if(!batches[si.pid])batches[si.pid]=[];
+    if(si.batchDeductions&&si.batchDeductions.length>0){
+      for(const ded of si.batchDeductions){
+        const ex=batches[si.pid].find(b=>b.date===ded.date&&b.location!=='consignment');
+        if(ex){ex.qty+=ded.qty;}
+        else{batches[si.pid].push({date:ded.date,qty:ded.qty,madeAt:ded.madeAt||null,location:'store'});}
+      }
+    }else{batches[si.pid].push({date:today(),qty:si.qty});}
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid:si.pid,name:si.name,type:'in',qty:si.qty,
+      reason:'取消預訂單還原（原出貨日:'+order.deliveryDate+'）'});
+  }
+  order.status='cancelled';order.cancelledAt=new Date().toISOString();
+  await Promise.all([savePreorders(),saveInv(),saveBatches(),saveMvs()]);
+  updateAlertBanner();renderInventory();renderReports();
+  alert('✅ 預訂單已取消，庫存已還原。');
+}
+
+function renderRepPreorders(el){
+  const pending=preorders.filter(o=>o.status==='pending').sort((a,b)=>a.deliveryDate.localeCompare(b.deliveryDate));
+  const done=preorders.filter(o=>o.status!=='pending').sort((a,b)=>b.deliveryDate.localeCompare(a.deliveryDate)).slice(0,20);
+  let h='';
+  // Pending orders
+  h+=`<div class="card">
+    <div class="card-title">📦 待出貨（${pending.length}筆）</div>`;
+  if(!pending.length){h+=`<div class="empty"><div class="ei">🎉</div><div class="et">目前無待出貨預訂單</div></div>`;}
+  else{
+    pending.forEach(order=>{
+      const isToday=order.deliveryDate===today();
+      const daysLeft=Math.ceil((new Date(order.deliveryDate)-new Date(today()))/(86400000));
+      const cls=isToday?'today':daysLeft<=1?'tomorrow':'';
+      const statusLabel=isToday?'今天出貨！':'還剩 '+daysLeft+' 天';
+      const itemStr=order.items.map(i=>esc(i.name)+'×'+i.qty).join('、');
+      h+=`<div class="po-item ${cls}">
+        <div class="po-item-head">
+          <div>
+            <div class="po-item-date">${order.deliveryDate} <span class="po-status ${isToday?'today':'pending'}">${statusLabel}</span></div>
+            ${order.note?'<div class="po-item-note">備註：'+esc(order.note)+'</div>':''}
+          </div>
+          <div class="po-item-total">NT$${order.total.toLocaleString()}</div>
+        </div>
+        <div class="po-item-products">${itemStr}</div>
+        <div class="po-actions">
+          <button class="btn btn-p btn-sm" style="flex:1" onclick="fulfillPreorder('${order.id}')">✅ 確認出貨</button>
+          <button class="btn btn-s btn-sm" onclick="cancelPreorder('${order.id}')">✕ 取消</button>
+        </div>
+      </div>`;
+    });
+  }
+  h+=`</div>`;
+  // Completed / cancelled
+  if(done.length){
+    h+=`<div class="card">
+      <div class="card-title" style="color:var(--muted)">歷史記錄（最近20筆）</div>`;
+    done.forEach(order=>{
+      const itemStr=order.items.map(i=>esc(i.name)+'×'+i.qty).join('、');
+      const statusLabel=order.status==='fulfilled'?'✅ 已出貨':'❌ 已取消';
+      h+=`<div class="po-item ${order.status}">
+        <div class="po-item-head">
+          <div class="po-item-date">${order.deliveryDate} <span class="po-status ${order.status}">${statusLabel}</span></div>
+          <div class="po-item-total">NT$${order.total.toLocaleString()}</div>
+        </div>
+        <div class="po-item-products">${itemStr}${order.note?' · '+esc(order.note):''}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+}
+
+// ── Repair Batches ──
+async function repairBatches(){
+  if(!confirm('確定要清理批次資料？\n\n會移除所有數量為 0 的批次記錄，並重新同步到 Firebase。'))return;
+  let cleaned=0;
+  for(const pid in batches){
+    const before=(batches[pid]||[]).length;
+    batches[pid]=(batches[pid]||[]).filter(b=>Number(b.qty)>0);
+    cleaned+=(before-batches[pid].length);
+  }
+  await saveBatches();
+  updateAlertBanner();renderInventory();
+  alert('✅ 清理完成！\n共移除 '+cleaned+' 筆無效批次記錄。\n\n若警告仍在，表示確實有超過10天的庫存，請檢查批次總覽。');
+}
+
+// ── Delete Batch ──
+async function deleteBatch(pid,bi){
+  const b=(batches[pid]||[])[bi];
+  if(!b)return;
+  const p=getProd(pid);
+  if(!confirm('確定刪除批次「'+b.date+' 製作 · '+b.qty+'罐」？\n\n⚠️ 此操作會同時扣減庫存總數。'))return;
+  stks[pid]=Math.max(0,(stks[pid]||0)-b.qty);
+  batches[pid].splice(bi,1);
+  batches[pid]=(batches[pid]||[]).filter(b=>Number(b.qty)>0);
+  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'adjust',qty:-b.qty,reason:'手動刪除批次（'+b.date+'製作）'});
+  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+  updateAlertBanner();renderInventory();
+  alert('✅ 批次已刪除，庫存已扣除 '+b.qty+' 罐');
+}
+
+// ── Consignment (農會寄售) ──
+function daysSince(ts){if(!ts)return 0;return Math.floor((new Date()-new Date(ts))/86400000);}
+async function consignBatch(pid,bi){
+  const b=(batches[pid]||[])[bi];if(!b||b.qty<=0)return;
+  const p=getProd(pid);
+  const input=prompt('出貨農會數量（此批最多 '+b.qty+' 罐）',b.qty);
+  const qty=parseInt(input);
+  if(!qty||qty<=0||qty>b.qty){if(input!==null)alert('數量不正確');return;}
+  if(!confirm('確定將 '+qty+' 罐（'+b.date+' 製作）出貨農會門市寄售？'))return;
+  if(qty===b.qty){
+    b.location='consignment';b.consignedAt=new Date().toISOString();
+  } else {
+    b.qty-=qty;
+    batches[pid].splice(bi+1,0,{date:b.date,qty,madeAt:b.madeAt||b.date,location:'consignment',consignedAt:new Date().toISOString()});
+  }
+  stks[pid]=Math.max(0,(stks[pid]||0)-qty);
+  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'adjust',qty:-qty,reason:'出貨農會寄售（批次:'+b.date+'）'});
+  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+  updateAlertBanner();renderInventory();
+  alert('✅ 已記錄出貨農會 '+qty+' 罐');
+}
+async function returnBatch(pid,bi){
+  const b=(batches[pid]||[])[bi];if(!b)return;
+  const p=getProd(pid);
+  const daysOut=daysSince(b.consignedAt);
+  if(!confirm('確定農會歸還 '+b.qty+' 罐（'+b.date+' 製作）？\n已在農會 '+daysOut+' 天\n\n歸還後請提醒店員優先銷售！'))return;
+  b.location='store';b.returnedAt=new Date().toISOString();
+  stks[pid]=(stks[pid]||0)+b.qty;
+  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'in',qty:b.qty,reason:'農會歸還（批次:'+b.date+'，寄售'+daysOut+'天）'});
+  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+  updateAlertBanner();renderInventory();
+  alert('✅ 已歸還 '+b.qty+' 罐（'+b.date+' 製作）\n請提醒店員：此批次已 '+daysDiff(b.date)+' 天，優先銷售！');
+}
 
 // ── RENDER: INVENTORY ──
 function renderInventory(){
@@ -710,14 +1124,33 @@ function renderInvGoods(el){
         g+=`<div style="margin-bottom:6px">`;
         bs.forEach((b,i)=>{
           const days=daysDiff(b.date),isRef=p.category==='packaging';
-          const cls=isRef?'ref':days>=10?'exp':days>=7?'warn':'ok';
+          const isConsign=b.location==='consignment';
+          const wasReturned=b.returnedAt&&b.location==='store';
+          const cls=isRef?'ref':isConsign?'consign':days>=10?'exp':days>=7?'warn':'ok';
           const isEd=editBatch&&editBatch.pid===p.id&&editBatch.bi===i;
+          const locTag=isConsign
+            ?`<span class="bloc-consign">🚚 農會中 ${daysSince(b.consignedAt)}天</span>`
+            :wasReturned
+              ?`<span class="bloc-returned">↩ 歸還</span><span class="bloc-store">門市</span>`
+              :`<span class="bloc-store">門市</span>`;
+          const madeTime=b.madeAt?'入庫:'+fmtDT(b.madeAt):'';
           g+=`<div class="bi ${cls}">
-            <span>${b.date} · ${days}天 · ${b.qty}${isRef?'件':'罐'}${isRef?' (參考)':''}</span>
-            ${isEd?
-              '<span style="display:flex;gap:4px;align-items:center"><input type="date" id="eb-dt" value="'+b.date+'" max="'+today()+'" style="padding:3px;border:1px solid var(--bdr);border-radius:6px;font-size:11px"><button class="btn btn-p btn-xs" onclick="submitEB('+p.id+','+i+')">✅</button><button class="btn btn-s btn-xs" onclick="editBatch=null;renderInventory()">✕</button></span>' :
-              '<button class="btn btn-s btn-xs" onclick="editBatch={pid:'+p.id+',bi:'+i+'};renderInventory()">✏️</button>'
-            }
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
+              <span>📅 製作 <b>${b.date}</b> · ${days}天 · <b>${b.qty}</b>${isRef?'件':'罐'}</span>
+              ${locTag}
+              ${isEd?
+                '<span style="display:flex;gap:4px;align-items:center"><input type="date" id="eb-dt" value="'+b.date+'" max="'+today()+'" style="padding:3px;border:1px solid var(--bdr);border-radius:6px;font-size:11px"><button class="btn btn-p btn-xs" onclick="submitEB('+p.id+','+i+')">✅</button><button class="btn btn-s btn-xs" onclick="editBatch=null;renderInventory()">✕</button></span>' :
+                '<button class="btn btn-s btn-xs" onclick="editBatch={pid:'+p.id+',bi:'+i+'};renderInventory()">✏️</button>'
+              }
+            </div>
+            ${madeTime?'<div class="batch-made-at">'+madeTime+'</div>':''}
+            ${p.category==='snowball'&&!isRef?`<div class="bi-act">
+              ${isConsign
+                ?'<button class="bi-act-btn return-btn" onclick="returnBatch('+p.id+','+i+')">← 農會歸還入庫</button>'
+                :'<button class="bi-act-btn consign-btn" onclick="consignBatch('+p.id+','+i+')">🚚 出貨農會</button>'
+              }
+              <button class="bi-act-btn" style="color:var(--err);border-color:var(--err)" onclick="deleteBatch(${p.id},${i})">🗑 刪除此批次</button>
+            </div>`:''}
           </div>`;
         });
         g+=`</div>`;
@@ -737,22 +1170,37 @@ function renderInvBatches(el){
   let all=[];
   for(const pid in batches){
     const p=getProd(Number(pid));if(!p)continue;
-    (batches[pid]||[]).filter(b=>b.qty>0).forEach(b=>all.push({p,date:b.date,qty:b.qty,days:daysDiff(b.date)}));
+    (batches[pid]||[]).filter(b=>b.qty>0).forEach((b,i)=>all.push({p,pid:Number(pid),bi:i,date:b.date,qty:b.qty,days:daysDiff(b.date),location:b.location||'store',consignedAt:b.consignedAt,madeAt:b.madeAt,returnedAt:b.returnedAt}));
   }
   all.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(!all.length){h+=`<div class="empty"><div class="ei">📭</div><div class="et">目前無庫存批次</div></div>`;}
-  else{
-    const exp=all.filter(b=>b.p.category==='snowball'&&b.days>=10);
-    const warn=all.filter(b=>b.p.category==='snowball'&&b.days>=7&&b.days<10);
-    const ok=all.filter(b=>b.p.category==='snowball'&&b.days<7);
+  if(!all.length){h+=`<div class="empty"><div class="ei">📭</div><div class="et">目前無庫存批次</div></div>`;
+  }else{
+    const consign=all.filter(b=>b.p.category==='snowball'&&b.location==='consignment');
+    const exp=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days>=10);
+    const warn=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days>=7&&b.days<10);
+    const ok=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days<7);
     const ref=all.filter(b=>b.p.category==='packaging');
-    if(exp.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--err);margin-bottom:6px">🔴 需促銷（≥10天）</div>`;exp.forEach(b=>{h+=`<div class="bi exp">${esc(b.p.name)} · ${b.date} · ${b.days}天 · ${b.qty}罐</div>`;});}
-    if(warn.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--warn);margin:8px 0 6px">🟡 即將到期（7–9天）</div>`;warn.forEach(b=>{h+=`<div class="bi warn">${esc(b.p.name)} · ${b.date} · ${b.days}天 · ${b.qty}罐</div>`;});}
-    if(ok.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 正常（<7天）</div>`;ok.forEach(b=>{h+=`<div class="bi ok">${esc(b.p.name)} · ${b.date} · ${b.days}天 · ${b.qty}罐</div>`;});}
-    if(ref.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--blu);margin:8px 0 6px">🔵 包裝類（僅參考）</div>`;ref.forEach(b=>{h+=`<div class="bi ref">${esc(b.p.name)} · ${b.date} · ${b.days}天 · ${b.qty}件</div>`;});}
+    function bRow(b,cls,unit){
+      const locBadge=b.location==='consignment'
+        ?`<span class="bloc-consign">農會中 ${daysSince(b.consignedAt)}天</span>`
+        :(b.returnedAt?`<span class="bloc-returned">↩歸還</span>`:`<span class="bloc-store">門市</span>`);
+      const madeAt=b.madeAt?` 入庫:${fmtDT(b.madeAt)}`:'';
+      return `<div class="bi ${cls}" style="padding:8px 10px">
+        <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+          <b>${esc(b.p.name)}</b> ${locBadge}
+        </div>
+        <div style="font-size:12px;margin-top:3px;color:#555">📅 製作 ${b.date}（${b.days}天）· ${b.qty}${unit}${madeAt}</div>
+      </div>`;
+    }
+    if(consign.length){h+=`<div style="font-size:13px;font-weight:700;color:#E65100;margin-bottom:6px">🚚 農會寄售中（${consign.reduce((s,b)=>s+b.qty,0)}罐）</div>`;consign.forEach(b=>{h+=bRow(b,'consign','罐');});}
+    if(exp.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--err);margin:8px 0 6px">🔴 需促銷（≥10天，共${exp.reduce((s,b)=>s+b.qty,0)}罐）</div>`;exp.forEach(b=>{h+=bRow(b,'exp','罐');});}
+    if(warn.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--warn);margin:8px 0 6px">🟡 即將到期（7–9天，共${warn.reduce((s,b)=>s+b.qty,0)}罐）</div>`;warn.forEach(b=>{h+=bRow(b,'warn','罐');});}
+    if(ok.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 正常（<7天，共${ok.reduce((s,b)=>s+b.qty,0)}罐）</div>`;ok.forEach(b=>{h+=bRow(b,'ok','罐');});}
+    if(ref.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--blu);margin:8px 0 6px">🔵 包裝類</div>`;ref.forEach(b=>{h+=bRow(b,'ref','件');});}
   }
   h+=`</div>`;el.innerHTML=h;
 }
+
 function renderInvMats(el){
   let h=`<div class="card"><div class="card-title">🌾 原料庫存</div>`;
   for(const m of mats){
@@ -775,16 +1223,21 @@ function submitInstock(pid){const q=parseInt(document.getElementById('iq-'+pid)?
 function submitAdj(pid){const q=parseInt(document.getElementById('aq-'+pid)?.value)||0,r=(document.getElementById('ar-'+pid)?.value||'').trim();if(!q){alert('請輸入調整量');return;}if(!r){alert('請填寫原因');return;}adjustStock(pid,q,r);}
 function submitEB(pid,bi){const nd=document.getElementById('eb-dt')?.value;if(nd)editBatchDate(pid,bi,nd);}
 async function quickAdj(pid,d){
-  stks[pid]=Math.max(0,(stks[pid]||0)+d);
-  // 若是增加庫存，補建批次記錄（保持 FIFO 資料一致）
   if(d>0){
+    stks[pid]=(stks[pid]||0)+d;
     if(!batches[pid])batches[pid]=[];
-    batches[pid].push({date:today(),qty:d});
+    batches[pid].push({date:today(),qty:d,madeAt:new Date().toISOString(),location:'store'});
     await Promise.all([saveInv(),saveBatches()]);
   } else {
-    await saveInv();
+    const absQty=Math.abs(d);
+    const bs=(batches[pid]||[]).filter(b=>b.location!=='consignment').sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let rem=absQty;
+    for(const b of bs){if(rem<=0)break;const take=Math.min(b.qty,rem);b.qty-=take;rem-=take;}
+    batches[pid]=(batches[pid]||[]).filter(b=>b.qty>0);
+    stks[pid]=Math.max(0,(stks[pid]||0)+d);
+    await Promise.all([saveInv(),saveBatches()]);
   }
-  renderInventory();renderPOS();
+  updateAlertBanner();renderInventory();renderPOS();
 }
 async function adjMat(mid,d){const m=getMat(mid);if(m)m.stock=Math.max(0,parseFloat((m.stock+d).toFixed(3)));await saveInv();renderInventory();}
 
@@ -794,6 +1247,7 @@ function renderReports(){
   if(repTab==='today')renderRepToday(el);
   else if(repTab==='month')renderRepMonth(el);
   else if(repTab==='year')renderRepYear(el);
+  else if(repTab==='preorders')renderRepPreorders(el);
   else renderRepMv(el);
 }
 function getTodaySales(){
@@ -1141,7 +1595,12 @@ function renderSetProds(el){
   el.innerHTML=h;
 }
 function renderSetStk(el){
-  let h=`<div class="card"><div class="card-title">📦 成品庫存（直接修改）</div>`;
+  let h=`<div class="card"><div class="card" style="border:2px solid var(--warn);margin-bottom:10px">
+      <div class="card-title" style="color:var(--warn)">🔧 批次資料維護</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">若批次警告顯示異常，或庫存數字對不上，點此修復。</p>
+      <button class="btn btn-p btn-sm btn-full" style="background:var(--warn)" onclick="repairBatches()">⚡ 一鍵清理無效批次資料</button>
+    </div>
+    <div class="card-title">📦 成品庫存（直接修改）</div>`;
   prods.forEach(p=>{
     h+=`<div class="set-item">
       <div class="si-l"><div class="si-title">${esc(p.name)}</div></div>
