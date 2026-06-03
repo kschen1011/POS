@@ -550,6 +550,21 @@ function removeFromCart(pid){
   modMode=null;customAmt=null;renderPOS();
 }
 function clearCart(){cart=[];modMode=null;customAmt=null;renderPOS();}
+function setCartQty(pid,val){
+  const qty=parseInt(val);
+  if(isNaN(qty)||qty<1){removeFromCart(pid);return;}
+  const idx=cart.findIndex(c=>c.pid===pid);
+  if(idx===-1)return;
+  const stk=getStk(pid);
+  if(qty>stk){
+    const p=getProd(pid);
+    alert('⚠️ 庫存不足！\n'+( p?p.name:'此商品')+'目前庫存僅剩 '+stk+' 罐\n已自動調整為最大可購數量');
+    cart[idx].qty=stk;
+  } else {
+    cart[idx].qty=qty;
+  }
+  renderPOS();
+}
 function calcTotal(){
   if(customAmt!==null)return customAmt;
   let t=cart.reduce((s,c)=>{const p=getProd(c.pid);return s+(p?p.price*c.qty:0);},0);
@@ -601,7 +616,6 @@ async function checkout(){
   catch(e){setSyncStatus(false);}
   cart=[];modMode=null;customAmt=null;
   updateAlertBanner();renderPOS();
-  showReceipt(rec, disc);
 }
 async function deleteSale(ym,id){
   if(!confirm('確定刪除這筆交易並還原庫存？'))return;
@@ -737,10 +751,21 @@ function renderPOS(){
     for(const c of cart){
       const p=getProd(c.pid);if(!p)continue;
       h+=`<div class="ci"><div class="ci-nm">${esc(p.name)}</div>
-        <div class="ci-qty"><button class="qbtn" onclick="removeFromCart(${c.pid})">−</button><span>${c.qty}</span><button class="qbtn" onclick="addToCart(${c.pid})">+</button></div>
+        <div class="ci-qty">
+          <button class="qbtn" onclick="removeFromCart(${c.pid})">−</button>
+          <input type="number" class="qty-inp" value="${c.qty}" min="1" max="999"
+            onchange="setCartQty(${c.pid},this.value)"
+            onclick="this.select()"
+            style="width:44px;text-align:center;border:1.5px solid var(--bdr);border-radius:7px;padding:3px 2px;font-size:15px;font-weight:700;background:#fff;-moz-appearance:textfield">
+          <button class="qbtn" onclick="addToCart(${c.pid})">+</button>
+        </div>
         <div class="ci-pr">NT$${(p.price*c.qty).toLocaleString()}</div></div>`;
     }
+    const totalItems=cart.reduce((s,c)=>s+c.qty,0);
     h+=`<div class="total-row"><span>合計</span><span>NT$${calcTotal().toLocaleString()}</span></div>`;
+    h+=`<div style="background:#FFF8E1;border-radius:8px;padding:9px 12px;margin-top:8px;font-size:13px;font-weight:700;color:#5D4037;text-align:center">
+      🛍 共選購 <span style="font-size:16px;color:#C2440A">${totalItems}</span> 件商品，請店員確認好客人商品數量
+    </div>`;
     h+=`<button class="btn btn-s btn-sm btn-full mt8" onclick="toggleModPanel()">✏️ 改金額</button>`;
     if(modMode!==null||customAmt!==null){
       const disc=getDisc();
