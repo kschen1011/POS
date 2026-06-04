@@ -761,11 +761,7 @@ function renderPOS(){
         </div>
         <div class="ci-pr">NT$${(p.price*c.qty).toLocaleString()}</div></div>`;
     }
-    const totalItems=cart.reduce((s,c)=>s+c.qty,0);
     h+=`<div class="total-row"><span>合計</span><span>NT$${calcTotal().toLocaleString()}</span></div>`;
-    h+=`<div style="background:#FFF8E1;border-radius:8px;padding:9px 12px;margin-top:8px;font-size:13px;font-weight:700;color:#5D4037;text-align:center">
-      🛍 共選購 <span style="font-size:16px;color:#C2440A">${totalItems}</span> 件商品，請店員確認好客人商品數量
-    </div>`;
     h+=`<button class="btn btn-s btn-sm btn-full mt8" onclick="toggleModPanel()">✏️ 改金額</button>`;
     if(modMode!==null||customAmt!==null){
       const disc=getDisc();
@@ -808,6 +804,9 @@ function renderPOSBar(){
       <span class="pos-bar-total">合計 NT$${total.toLocaleString()}</span>
       ${disc>0?'<span class="pos-bar-disc">員工特約折抵 -NT$'+disc+'</span>':''}
       ${modMode==='pr'?'<span class="pos-bar-disc" style="color:var(--warn)">公關出貨 NT$0</span>':''}
+    </div>
+    <div style="background:#FFF8E1;border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:13px;font-weight:700;color:#5D4037;text-align:center">
+      🛍 共選購 <span style="font-size:15px;color:#C2440A">${cart.reduce((s,c)=>s+c.qty,0)}</span> 件商品，請店員確認好客人商品數量
     </div>
     ${isOnline?`<div class="po-bar-section">
       <div class="po-bar-label">📦 出貨日期</div>
