@@ -137,12 +137,12 @@ body.has-banner{--bh:40px}
 .civ{font-size:18px;font-weight:800}.ct-info.wlk .civ{color:var(--ok)}.ct-info.onl .civ{color:var(--blu)}
 .cil{font-size:11px;color:var(--muted)}
 /* ── Fixed checkout bar ── */
-#pos-bar{position:fixed;bottom:var(--nav);left:0;right:0;background:#fff;border-top:2px solid var(--p);z-index:95;display:none;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));max-height:72vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#pos-bar{position:fixed;bottom:var(--nav);left:0;right:0;background:#fff;border-top:2px solid var(--p);z-index:95;display:none;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
 #pos-bar.show{display:block}
 .pos-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .pos-bar-total{font-size:20px;font-weight:800}
 .pos-bar-disc{font-size:12px;color:var(--ok)}
-body.has-cart #main{padding-bottom:calc(var(--nav) + 64px + env(safe-area-inset-bottom,0px))}
+body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(safe-area-inset-bottom,0px))}
 @media(min-width:480px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.pgrid{grid-template-columns:repeat(4,1fr)}.statrow{grid-template-columns:repeat(4,1fr)}}
 
@@ -359,6 +359,17 @@ const BOM={
 
 // ── State ──
 let prods=[],mats=[],stks={},batches={},mvs=[],salesCache={},preorders=[];
+let isCheckingOut=false; // 防止重複結帳
+let _toastTimer=null;
+function showToast(msg,type=''){
+  let el=document.getElementById('checkout-toast');
+  if(!el){el=document.createElement('div');el.id='checkout-toast';el.style.cssText='position:fixed;bottom:120px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:22px;font-size:14px;font-weight:700;z-index:999;transition:opacity .3s;white-space:nowrap;pointer-events:none;color:#fff';document.body.appendChild(el);}
+  el.textContent=msg;
+  el.style.background=type==='ok'?'#2E7D32':type==='error'?'#C62828':'#333';
+  el.style.opacity='1';
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{el.style.opacity='0';},2800);
+}
 let lastLoadTime=0;
 const STALE_MS=8*60*1000; // 8 分鐘未同步視為過期
 let cart=[],custType='walkin',modMode=null,customAmt=null;
@@ -482,16 +493,11 @@ async function loadSalesMonth(ym){
 async function saveProds(){await pos.doc('products').set({items:prods});}
 async function saveInv(){await pos.doc('inventory').set({stks,mats});}
 async function saveBatches(){
-  // 過濾掉所有 qty<=0 的批次，同時清理本地變數與 Firebase
+  // 存檔前過濾掉所有 qty<=0 的批次，防止垃圾資料累積
   const clean={};
   for(const pid in batches){
     const f=(batches[pid]||[]).filter(b=>Number(b.qty)>0);
     if(f.length>0)clean[pid]=f;
-    else delete batches[pid];
-  }
-  // 同步回本地變數，避免 stale render
-  for(const pid in batches){
-    batches[pid]=(batches[pid]||[]).filter(b=>Number(b.qty)>0);
   }
   await pos.doc('batches').set({items:clean});
 }
@@ -602,28 +608,71 @@ function fifoDeduct(pid,qty){
 
 // ── Checkout ──
 async function checkout(){
+  // ── 防呆：防止重複結帳 ──
+  if(isCheckingOut){showToast('結帳處理中，請稍候...');return;}
   if(!cart.length)return;
+
+  isCheckingOut=true;
+  renderPOSBar(); // 立即更新按鈕為 loading 狀態
+
+  // ── 快照：若 save 失敗可完整回滾 ──
+  const snapStks=JSON.parse(JSON.stringify(stks));
+  const snapBatches=JSON.parse(JSON.stringify(batches));
+  const snapMvs=[...mvs];
+  const snapCart=cart.map(c=>({...c}));
+
   const total=calcTotal(),disc=getDisc(),ym=ymStr(new Date());
-  // 建立銷售紀錄，並在 fifoDeduct 後記錄批次扣減資訊（供刪除時還原用）
   const recItems=cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};});
   const rec={id:genId(),ts:new Date().toISOString(),items:recItems,total,discount:disc,custType};
+
+  // FIFO 扣庫存，記錄批次來源
   for(const c of cart){
     const p=getProd(c.pid);if(!p)continue;
-    const deds=fifoDeduct(c.pid,c.qty); // 取得批次扣減紀錄
+    const deds=fifoDeduct(c.pid,c.qty);
     const item=rec.items.find(i=>i.pid===c.pid);
-    if(item&&deds.length>0)item.batchDeductions=deds; // 寫入銷售紀錄
+    if(item&&deds.length>0)item.batchDeductions=deds;
     const batchInfo=deds.length>0?deds.map(d=>d.date).join(','):'未知';
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,reason:'POS銷售['+(custType==='walkin'?'現場':'預訂')+'] 批次:'+batchInfo});
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,
+      reason:'POS銷售['+(custType==='walkin'?'現場':'預訂')+'] 批次:'+batchInfo});
   }
   if(!salesCache[ym])salesCache[ym]=[];
   salesCache[ym].push(rec);
-  try{await Promise.all([saveSales(ym),saveInv(),saveBatches(),saveMvs()]);setSyncStatus(true);}
-  catch(e){setSyncStatus(false);}
-  cart=[];modMode=null;customAmt=null;
-  updateAlertBanner();renderPOS();
+
+  try{
+    await Promise.all([saveSales(ym),saveInv(),saveBatches(),saveMvs()]);
+    setSyncStatus(true);
+    // ✅ 儲存成功後才清購物車
+    cart=[];modMode=null;customAmt=null;
+    showToast('✅ 結帳成功！','ok');
+  }catch(e){
+    // ❌ 儲存失敗：完整回滾，保留購物車讓店員重試
+    console.error('Checkout save failed:',e);
+    stks=snapStks;
+    batches=snapBatches;
+    mvs=snapMvs;
+    cart=snapCart;
+    salesCache[ym]=(salesCache[ym]||[]).filter(s=>s.id!==rec.id);
+    setSyncStatus(false);
+    showToast('❌ 結帳失敗，庫存已還原，請檢查網路後重試','error');
+  }finally{
+    isCheckingOut=false;
+    updateAlertBanner();renderPOS();
+  }
 }
 async function deleteSale(ym,id){
-  if(!confirm('確定刪除這筆交易並還原庫存？'))return;
+  // 檢查是否有重複訂單（相同品項在 60 秒內）
+  const sale0=(salesCache[ym]||[]).find(s=>s.id===id);
+  if(sale0){
+    const dups=(salesCache[ym]||[]).filter(s=>{
+      if(s.id===id||Math.abs(new Date(s.ts)-new Date(sale0.ts))>60000)return false;
+      return s.total===sale0.total&&s.items.length===sale0.items.length&&
+        s.items.every(a=>sale0.items.some(b=>b.pid===a.pid&&b.qty===a.qty));
+    });
+    const dupWarn=dups.length>0?('\n\n⚠️ 注意：此時間點附近有 '+dups.length+' 筆相同金額的訂單，可能是重複下單，建議一起確認。'):'';
+    if(!confirm('確定刪除這筆交易並還原庫存？'+dupWarn))return;
+  } else {
+    if(!confirm('確定刪除這筆交易並還原庫存？'))return;
+  }
   const idx=(salesCache[ym]||[]).findIndex(s=>s.id===id);if(idx<0)return;
   const sale=salesCache[ym][idx];
   for(const si of sale.items){
@@ -767,7 +816,23 @@ function renderPOS(){
         <div class="ci-pr">NT$${(p.price*c.qty).toLocaleString()}</div></div>`;
     }
     h+=`<div class="total-row"><span>合計</span><span>NT$${calcTotal().toLocaleString()}</span></div>`;
-    // Removed checkout button and mod panel from scroll area - both rendered in sticky bar below
+    h+=`<button class="btn btn-s btn-sm btn-full mt8" onclick="toggleModPanel()">✏️ 改金額</button>`;
+    if(modMode!==null||customAmt!==null){
+      const disc=getDisc();
+      h+=`<div class="mod-panel">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--warn)">改金額</div>
+        <div class="mod-grid">
+          <button class="mbtn ${modMode==='staff'?'on':''}" onclick="setModMode('staff')">👤 員工特約<br><small>-NT$10/罐</small></button>
+          <button class="mbtn ${modMode==='pr'?'on':''}" onclick="setModMode('pr')">🎁 公關出貨<br><small>NT$0</small></button>
+          <button class="mbtn" onclick="setModMode('restore')">↩️ 恢復原價</button>
+          <button class="mbtn ${modMode==='custom'?'on':''}" onclick="setModMode('custom')">✏️ 自訂金額</button>
+        </div>
+        ${modMode==='staff'&&disc>0?'<div style="font-size:12px;color:var(--ok);margin-bottom:6px">特約折抵：-NT$'+disc+'</div>':''}
+        ${modMode==='custom'||customAmt!==null?'<div style="display:flex;gap:6px"><input type="number" id="ca-inp" placeholder="輸入金額" value="'+(customAmt??'')+'" style="flex:1;padding:8px;border:1px solid var(--bdr);border-radius:8px;font-size:14px"><button class="btn btn-p btn-sm" onclick="applyCA()">套用</button></div>':''}
+        <div class="fb mt8" style="font-size:16px;font-weight:800"><span>結帳金額</span><span>NT$${calcTotal().toLocaleString()}</span></div>
+      </div>`;
+    }
+    // Removed checkout button from scroll area - rendered in sticky bar below
     h+=`</div>`;
   }
   el.innerHTML=h;
@@ -786,39 +851,17 @@ function renderPOSBar(){
   document.body.classList.add('has-cart');
   const total=calcTotal(),disc=getDisc();
   const isOnline=custType==='online';
-  // Preserve po-date/note values across re-renders
   const poDate=document.getElementById('po-date-input')?.value||today();
-  const poNote=document.getElementById('po-note-input')?.value||'';
   const isFuture=poDate>today();
-  const modOpen=modMode!==null||customAmt!==null;
-
-  let modHtml='';
-  if(modOpen){
-    modHtml=`<div class="mod-panel" style="margin-bottom:8px">
-      <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--warn)">✏️ 改金額</div>
-      <div class="mod-grid">
-        <button class="mbtn ${modMode==='staff'?'on':''}" onclick="setModMode('staff')">👤 員工特約<br><small>-NT$10/罐</small></button>
-        <button class="mbtn ${modMode==='pr'?'on':''}" onclick="setModMode('pr')">🎁 公關出貨<br><small>NT$0</small></button>
-        <button class="mbtn" onclick="setModMode('restore')">↩️ 恢復原價</button>
-        <button class="mbtn ${modMode==='custom'?'on':''}" onclick="setModMode('custom')">✏️ 自訂金額</button>
-      </div>
-      ${modMode==='staff'&&disc>0?'<div style="font-size:12px;color:var(--ok);margin-bottom:6px">特約折抵：-NT$'+disc+'</div>':''}
-      ${modMode==='custom'||customAmt!==null?'<div style="display:flex;gap:6px"><input type="number" id="ca-inp" placeholder="輸入金額" value="'+(customAmt??'')+'" style="flex:1;padding:8px;border:1px solid var(--bdr);border-radius:8px;font-size:14px"><button class="btn btn-p btn-sm" onclick="applyCA()">套用</button></div>':''}
-      <div class="fb mt8" style="font-size:16px;font-weight:800"><span>結帳金額</span><span>NT$${total.toLocaleString()}</span></div>
-    </div>`;
-  }
-
   bar.innerHTML=`
     <div class="pos-bar-row">
       <span class="pos-bar-total">合計 NT$${total.toLocaleString()}</span>
-      <button class="btn btn-s btn-xs" onclick="toggleModPanel()" style="flex-shrink:0">${modOpen?'✕ 關閉':'✏️ 改金額'}</button>
+      ${disc>0?'<span class="pos-bar-disc">員工特約折抵 -NT$'+disc+'</span>':''}
+      ${modMode==='pr'?'<span class="pos-bar-disc" style="color:var(--warn)">公關出貨 NT$0</span>':''}
     </div>
-    ${disc>0?'<div class="pos-bar-disc" style="margin-bottom:4px">員工特約折抵 -NT$'+disc+'</div>':''}
-    ${modMode==='pr'?'<div class="pos-bar-disc" style="color:var(--warn);margin-bottom:4px">公關出貨 NT$0</div>':''}
-    <div style="background:#FFF8E1;border-radius:8px;padding:6px 12px;margin-bottom:8px;font-size:13px;font-weight:700;color:#5D4037;text-align:center">
-      🛍 共 <span style="font-size:15px;color:#C2440A">${cart.reduce((s,c)=>s+c.qty,0)}</span> 件，請確認商品數量
+    <div style="background:#FFF8E1;border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:13px;font-weight:700;color:#5D4037;text-align:center">
+      🛍 共選購 <span style="font-size:15px;color:#C2440A">${cart.reduce((s,c)=>s+c.qty,0)}</span> 件商品，請店員確認好客人商品數量
     </div>
-    ${modHtml}
     ${isOnline?`<div class="po-bar-section">
       <div class="po-bar-label">📦 出貨日期</div>
       <div class="po-date-row">
@@ -827,16 +870,21 @@ function renderPOSBar(){
           ${isFuture?'📋 建立預訂單':'⚡ 今日出貨'}
         </span>
       </div>
-      <input type="text" id="po-note-input" class="po-note-inp" placeholder="備註（客人名稱/電話後4碼）" value="${poNote}">
+      <input type="text" id="po-note-input" class="po-note-inp" placeholder="備註（客人名稱/電話後4碼）" value="">
       <button class="po-btn ${isFuture?'':'today-btn'}" onclick="${isFuture?'doCreatePreorder()':'checkout()'}">
         ${isFuture?'📋 建立預訂單 · 預留庫存':'📱 立即結帳 NT$'+total.toLocaleString()}
       </button>
     </div>`:`
-    <button class="ck-btn" style="margin-top:0" onclick="checkout()">
-      🏪 現場結帳 NT$${total.toLocaleString()}
+    <button class="ck-btn" style="margin-top:0;${isCheckingOut?'opacity:.5;pointer-events:none':''}" onclick="checkout()">
+      ${isCheckingOut?'⏳ 結帳處理中...':'🏪 現場結帳 NT$'+total.toLocaleString()}
     </button>`}`;
+  // 動態更新 #main 的 padding-bottom，讓內容不被 pos-bar 遮住
+  requestAnimationFrame(()=>{
+    const h=bar.offsetHeight;
+    document.documentElement.style.setProperty('--bar-h', h+'px');
+  });
 }
-function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOSBar();}
+function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOS();}
 function setModMode(m){
   if(m==='restore'){modMode=null;customAmt=null;}
   else if(m==='custom')modMode='custom';
@@ -1168,21 +1216,17 @@ function renderInvGoods(el){
             :wasReturned
               ?`<span class="bloc-returned">↩ 歸還</span><span class="bloc-store">門市</span>`
               :`<span class="bloc-store">門市</span>`;
-          // 入庫時間（madeAt = 掃描/入庫當下時間）
-          const madeAtStr=b.madeAt?('入庫時間：'+fmtDT(b.madeAt)):'';
-          // 緊急程度文字
-          const urgency=!isRef&&!isConsign?(days>=10?'🔴 需促銷':days>=7?'🟡 即將到期':days>=3?'🟢 正常':'🟢 新鮮'):'';
-          g+=`<div class="bi ${cls}" style="border-left:3px solid ${days>=10&&!isRef&&!isConsign?'var(--err)':days>=7&&!isRef&&!isConsign?'var(--warn)':'transparent'}">
+          const madeTime=b.madeAt?'入庫:'+fmtDT(b.madeAt):'';
+          g+=`<div class="bi ${cls}">
             <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-              <span>📅 製作 <b>${b.date}</b>（${days}天前）· 剩 <b style="font-size:14px">${b.qty}</b>${isRef?'件':'罐'}</span>
-              ${urgency?`<span style="font-size:10px;font-weight:700">${urgency}</span>`:''}
+              <span>📅 製作 <b>${b.date}</b> · ${days}天 · <b>${b.qty}</b>${isRef?'件':'罐'}</span>
               ${locTag}
               ${isEd?
                 '<span style="display:flex;gap:4px;align-items:center"><input type="date" id="eb-dt" value="'+b.date+'" max="'+today()+'" style="padding:3px;border:1px solid var(--bdr);border-radius:6px;font-size:11px"><button class="btn btn-p btn-xs" onclick="submitEB('+p.id+','+i+')">✅</button><button class="btn btn-s btn-xs" onclick="editBatch=null;renderInventory()">✕</button></span>' :
                 '<button class="btn btn-s btn-xs" onclick="editBatch={pid:'+p.id+',bi:'+i+'};renderInventory()">✏️</button>'
               }
             </div>
-            ${madeAtStr?`<div class="batch-made-at">${madeAtStr}</div>`:''}
+            ${madeTime?'<div class="batch-made-at">'+madeTime+'</div>':''}
             ${p.category==='snowball'&&!isRef?`<div class="bi-act">
               ${isConsign
                 ?'<button class="bi-act-btn return-btn" onclick="returnBatch('+p.id+','+i+')">← 農會歸還入庫</button>'
