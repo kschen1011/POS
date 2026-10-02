@@ -59,7 +59,6 @@ body.has-banner{--bh:40px}
 .pcard.oos{opacity:.4;pointer-events:none}
 .pn{font-size:13px;font-weight:700;line-height:1.3}.pp{font-size:15px;font-weight:800;color:var(--p);margin-top:3px}
 .ps{font-size:11px;color:var(--muted);margin-top:1px}.ps.low{color:var(--warn)}.ps.oos{color:var(--err)}
-.exp-tag{position:absolute;top:6px;right:6px;background:var(--err);color:#fff;font-size:9px;padding:2px 5px;border-radius:5px;font-weight:700}
 .cqb{position:absolute;top:-7px;right:-7px;background:var(--p);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .ci{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}.ci:last-child{border-bottom:none}
 .ci-nm{flex:1;font-size:13px;font-weight:500}.ci-qty{display:flex;align-items:center;gap:6px}
@@ -81,7 +80,7 @@ body.has-banner{--bh:40px}
 .abtn{width:32px;height:32px;border-radius:7px;border:1px solid var(--bdr);background:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .abtn:active{background:var(--bdr)}
 .bi{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;margin-bottom:4px;font-size:12px}
-.bi.ok{background:#E8F5E9}.bi.warn{background:#FFF3E0}.bi.exp{background:#FFEBEE}.bi.ref{background:#E3F2FD}
+.bi.ok{background:#E8F5E9}.bi.ref{background:#E3F2FD}
 .isform,.adjform{border-radius:10px;padding:10px;margin-top:8px;display:none}
 .isform{background:var(--pl)}.adjform{background:#FFF3E0}
 .isform.show,.adjform.show{display:block}
@@ -142,7 +141,7 @@ body.has-banner{--bh:40px}
 .pos-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .pos-bar-total{font-size:20px;font-weight:800}
 .pos-bar-disc{font-size:12px;color:var(--ok)}
-body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(safe-area-inset-bottom,0px))}
+body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset-bottom,0px))}
 @media(min-width:480px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.pgrid{grid-template-columns:repeat(4,1fr)}.statrow{grid-template-columns:repeat(4,1fr)}}
 
@@ -150,6 +149,21 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(s
 #receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
 #receipt-overlay.show{display:flex}
 #receipt-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px 20px 44px}
+/* ── Bulk Instock Modal ── */
+#bulk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
+#bulk-overlay.show{display:flex}
+#bulk-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 16px 40px}
+.bulk-title{font-size:16px;font-weight:800;color:var(--p);margin-bottom:14px}
+.bulk-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0e8e0}
+.bulk-row:last-child{border-bottom:none}
+.bulk-chk{width:20px;height:20px;accent-color:var(--p);flex-shrink:0;cursor:pointer}
+.bulk-name{flex:1;font-size:14px;font-weight:600}
+.bulk-stk{font-size:12px;color:#888;min-width:40px;text-align:right}
+.bulk-qty{width:64px;padding:5px 6px;border:1.5px solid #d0c0b0;border-radius:8px;font-size:14px;text-align:center;background:#fafafa}
+.bulk-qty:disabled{opacity:.35;background:#f0f0f0}
+.bulk-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:#fdf6f0;border-radius:10px}
+.bulk-date-row label{font-size:13px;font-weight:700;flex:1}
+.bulk-date-row input{border:1.5px solid #d0c0b0;border-radius:8px;padding:5px 8px;font-size:14px}
 .rcpt-head{text-align:center;padding-bottom:16px;border-bottom:2px dashed #e0d0c0;margin-bottom:14px}
 .rcpt-brand{font-size:28px;margin-bottom:4px}
 .rcpt-shop{font-size:17px;font-weight:800;color:#1a1a1a;letter-spacing:.05em}
@@ -234,6 +248,9 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(s
       <button class="stab" onclick="setInvTab('batches')">📦 批次總覽</button>
       <button class="stab" onclick="setInvTab('mats')">🌾 原料庫存</button>
     </div>
+    <div style="padding:8px 12px 0">
+      <button class="btn btn-p btn-sm btn-full" onclick="openBulkInstock()" style="font-size:14px;font-weight:700">📥 批次入庫（多口味一次入庫）</button>
+    </div>
     <div id="inv-body"></div>
   </div>
   <div class="view" id="v-rep">
@@ -258,6 +275,9 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(s
 <div id="pos-bar"></div>
 <div id="receipt-overlay" onclick="if(event.target===this)closeReceipt()">
   <div id="receipt-sheet"></div>
+</div>
+<div id="bulk-overlay" onclick="if(event.target===this)closeBulkInstock()">
+  <div id="bulk-sheet"></div>
 </div>
 <div id="nav">
   <button class="nb on" id="nb-pos" onclick="setTab('pos')"><span class="ico">🛒</span><span class="lbl">收銀</span></button>
@@ -425,27 +445,14 @@ function getStk(pid){return stks[pid]||0}
 function getProd(pid){return prods.find(p=>p.id===pid)}
 function getMat(mid){return mats.find(m=>m.id===mid)}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function hasExpBatches(){
-  for(const pid in batches){
-    const p=getProd(Number(pid));if(!p||p.category!=='snowball')continue;
-    if((batches[pid]||[]).some(b=>b.qty>0&&daysDiff(b.date)>=10))return true;
-  }return false;
-}
-function hasExpBatch(pid){
-  const p=getProd(pid);if(!p||p.category!=='snowball')return false;
-  return(batches[pid]||[]).some(b=>b.qty>0&&daysDiff(b.date)>=10);
-}
 function updateAlertBanner(){
-  const hasExp=hasExpBatches();
   const todayPO=getTodayDeliveries().length;
-  const show=hasExp||todayPO>0;
+  const show=todayPO>0;
   const banner=document.getElementById('alert-banner');
   if(banner){
-    if(todayPO>0&&hasExp)banner.textContent='⚠️ 有雪球批次超過10天！ 且 今日有 '+todayPO+' 筆預訂單待出貨';
-    else if(todayPO>0)banner.textContent='📦 今日有 '+todayPO+' 筆預訂單待出貨，請前往「報表→預訂單」確認';
-    else banner.textContent='⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。';
+    banner.textContent='📦 今日有 '+todayPO+' 筆預訂單待出貨，請前往「報表→預訂單」確認';
     banner.classList.toggle('show',show);
-    banner.style.background=todayPO>0&&!hasExp?'#1D4ED8':'';
+    banner.style.background=show?'#1D4ED8':'';
   }
   document.body.classList.toggle('has-banner',show);
   // Update preorders tab badge
@@ -706,13 +713,28 @@ async function deleteSale(ym,id){
 async function addStock(pid,qty,bDate){
   if(!qty||qty<=0)return;
   const p=getProd(pid);if(!p)return;
-  stks[pid]=(stks[pid]||0)+qty;
-  if(!batches[pid])batches[pid]=[];
-  batches[pid].push({date:bDate||today(),qty,madeAt:new Date().toISOString(),location:'store'});
-  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p.name,type:'in',qty,reason:'進貨(批次:'+(bDate||today())+')',batchDate:bDate||today()});
-  inFormOpen[pid]=false;
-  await Promise.all([saveInv(),saveBatches(),saveMvs()]);
-  updateAlertBanner();renderInventory();renderPOS();
+  if(window._addStockLock)return;
+  window._addStockLock=true;
+  const btn=document.querySelector(`[onclick*="submitInstock(${pid})"]`)||document.querySelector(`[onclick*="submitInstock('${pid}')"]`);
+  if(btn){btn.disabled=true;btn.textContent='儲存中...';}
+  try{
+    stks[pid]=(stks[pid]||0)+qty;
+    if(!batches[pid])batches[pid]=[];
+    batches[pid].push({date:bDate||today(),qty,madeAt:new Date().toISOString(),location:'store'});
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p.name,type:'in',qty,reason:'進貨(批次:'+(bDate||today())+')',batchDate:bDate||today()});
+    inFormOpen[pid]=false;
+    await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+    updateAlertBanner();renderInventory();renderPOS();
+    alert('✅ 入庫成功！\n商品：'+p.name+'\n數量：+'+qty+' 罐\n製作日期：'+(bDate||today()));
+  }catch(e){
+    stks[pid]=Math.max(0,(stks[pid]||0)-qty);
+    batches[pid]=(batches[pid]||[]);batches[pid].pop();
+    mvs.pop();
+    alert('❌ 入庫失敗，資料未儲存！\n請重試或聯絡管理員。\n錯誤：'+e.message);
+    if(btn){btn.disabled=false;btn.textContent='確認入庫';}
+  }finally{
+    window._addStockLock=false;
+  }
 }
 async function adjustStock(pid,qty,reason){
   if(!reason)return;
@@ -786,9 +808,9 @@ function renderPOS(){
   function pCards(items){
     let g='';
     for(const p of items){
-      const stk=getStk(p.id),cq=cartQty(p.id),oos=stk<=0,low=stk>0&&stk<=5,exp=hasExpBatch(p.id);
+      const stk=getStk(p.id),cq=cartQty(p.id),oos=stk<=0,low=stk>0&&stk<=5;
       g+=`<div class="pcard ${cq>0?'on':''} ${oos?'oos':''}" onclick="${oos?'':'addToCart('+p.id+')'}">
-        ${exp?'<div class="exp-tag">快過期</div>':''}${cq>0?'<div class="cqb">'+cq+'</div>':''}
+        ${cq>0?'<div class="cqb">'+cq+'</div>':''}
         <div class="pn">${esc(p.name)}</div>
         <div class="pp">NT$${p.price}</div>
         <div class="ps ${oos?'oos':low?'low':''}">${oos?'售完':stk+(p.category==='packaging'?'件':'罐')}</div>
@@ -878,11 +900,6 @@ function renderPOSBar(){
     <button class="ck-btn" style="margin-top:0;${isCheckingOut?'opacity:.5;pointer-events:none':''}" onclick="checkout()">
       ${isCheckingOut?'⏳ 結帳處理中...':'🏪 現場結帳 NT$'+total.toLocaleString()}
     </button>`}`;
-  // 動態更新 #main 的 padding-bottom，讓內容不被 pos-bar 遮住
-  requestAnimationFrame(()=>{
-    const h=bar.offsetHeight;
-    document.documentElement.style.setProperty('--bar-h', h+'px');
-  });
 }
 function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOS();}
 function setModMode(m){
@@ -922,6 +939,87 @@ function showReceipt(rec, disc) {
   overlay.classList.add('show');
 }
 function closeReceipt(){document.getElementById('receipt-overlay').classList.remove('show');}
+
+// ── BULK INSTOCK ──
+function openBulkInstock(){
+  const snowballs=prods.filter(p=>p.active&&p.category==='snowball');
+  const others=prods.filter(p=>p.active&&p.category!=='snowball'&&p.category!=='packaging');
+  const all=[...snowballs,...others];
+  let rows='';
+  all.forEach(p=>{
+    const stk=getStk(p.id);
+    rows+=`<div class="bulk-row">
+      <input type="checkbox" class="bulk-chk" id="bchk-${p.id}" onchange="toggleBulkRow(${p.id})">
+      <label class="bulk-name" for="bchk-${p.id}">${esc(p.name)}</label>
+      <span class="bulk-stk">庫存 ${stk}</span>
+      <input type="number" class="bulk-qty" id="bqty-${p.id}" value="1" min="1" disabled>
+    </div>`;
+  });
+  document.getElementById('bulk-sheet').innerHTML=`
+    <div class="bulk-title">📥 批次入庫</div>
+    <div class="bulk-date-row">
+      <label>📅 製作日期（全批共用）</label>
+      <input type="date" id="bulk-date" value="${today()}" max="${today()}">
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px">勾選口味後填入數量，再按送出</div>
+    ${rows}
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-p btn-sm" style="flex:1;font-size:14px;font-weight:700" id="bulk-submit-btn" onclick="submitBulkInstock()">✅ 確認入庫</button>
+      <button class="btn btn-s btn-sm" onclick="closeBulkInstock()">取消</button>
+    </div>`;
+  document.getElementById('bulk-overlay').classList.add('show');
+}
+function closeBulkInstock(){document.getElementById('bulk-overlay').classList.remove('show');}
+function toggleBulkRow(pid){
+  const chk=document.getElementById('bchk-'+pid);
+  const inp=document.getElementById('bqty-'+pid);
+  if(!inp)return;
+  inp.disabled=!chk.checked;
+  if(chk.checked)inp.focus();
+}
+async function submitBulkInstock(){
+  if(window._bulkLock)return;
+  const bDate=document.getElementById('bulk-date')?.value||today();
+  const snowballs=prods.filter(p=>p.active&&p.category==='snowball');
+  const others=prods.filter(p=>p.active&&p.category!=='snowball'&&p.category!=='packaging');
+  const all=[...snowballs,...others];
+  const items=[];
+  for(const p of all){
+    const chk=document.getElementById('bchk-'+p.id);
+    if(!chk||!chk.checked)continue;
+    const qty=parseInt(document.getElementById('bqty-'+p.id)?.value)||0;
+    if(qty<=0){alert('⚠️ 請填寫「'+p.name+'」的數量（需大於 0）');return;}
+    items.push({pid:p.id,name:p.name,qty});
+  }
+  if(!items.length){alert('請至少勾選一個口味');return;}
+  const summary=items.map(i=>`• ${i.name}：+${i.qty} 罐`).join('\n');
+  if(!confirm('確認以下入庫？\n製作日期：'+bDate+'\n\n'+summary+'\n\n按確定後會寫入系統'))return;
+  window._bulkLock=true;
+  const btn=document.getElementById('bulk-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='儲存中...';}
+  const backup={stks:{},batches:{},mvs:[...mvs]};
+  items.forEach(({pid})=>{backup.stks[pid]=stks[pid]||0;backup.batches[pid]=(batches[pid]||[]).map(b=>({...b}));});
+  try{
+    items.forEach(({pid,name,qty})=>{
+      stks[pid]=(stks[pid]||0)+qty;
+      if(!batches[pid])batches[pid]=[];
+      batches[pid].push({date:bDate,qty,madeAt:new Date().toISOString(),location:'store'});
+      mvs.push({id:genId(),ts:new Date().toISOString(),pid,name,type:'in',qty,reason:'批次入庫(製作日期:'+bDate+')',batchDate:bDate});
+    });
+    await Promise.all([saveInv(),saveBatches(),saveMvs()]);
+    closeBulkInstock();
+    updateAlertBanner();renderInventory();renderPOS();
+    const resultLines=items.map(i=>`• ${i.name}：+${i.qty} 罐`).join('\n');
+    alert('✅ 批次入庫成功！\n製作日期：'+bDate+'\n\n'+resultLines);
+  }catch(e){
+    items.forEach(({pid})=>{stks[pid]=backup.stks[pid];batches[pid]=backup.batches[pid];});
+    mvs.splice(0,mvs.length,...backup.mvs);
+    alert('❌ 入庫失敗，資料未儲存！\n請重試或聯絡管理員。\n錯誤：'+e.message);
+    if(btn){btn.disabled=false;btn.textContent='✅ 確認入庫';}
+  }finally{
+    window._bulkLock=false;
+  }
+}
 
 // ── Pre-order System ──
 function getPendingCount(){return preorders.filter(o=>o.status==='pending').length;}
@@ -1259,9 +1357,7 @@ function renderInvBatches(el){
   if(!all.length){h+=`<div class="empty"><div class="ei">📭</div><div class="et">目前無庫存批次</div></div>`;
   }else{
     const consign=all.filter(b=>b.p.category==='snowball'&&b.location==='consignment');
-    const exp=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days>=10);
-    const warn=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days>=7&&b.days<10);
-    const ok=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment'&&b.days<7);
+    const ok=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment');
     const ref=all.filter(b=>b.p.category==='packaging');
     function bRow(b,cls,unit){
       const locBadge=b.location==='consignment'
@@ -1276,9 +1372,7 @@ function renderInvBatches(el){
       </div>`;
     }
     if(consign.length){h+=`<div style="font-size:13px;font-weight:700;color:#E65100;margin-bottom:6px">🚚 農會寄售中（${consign.reduce((s,b)=>s+b.qty,0)}罐）</div>`;consign.forEach(b=>{h+=bRow(b,'consign','罐');});}
-    if(exp.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--err);margin:8px 0 6px">🔴 需促銷（≥10天，共${exp.reduce((s,b)=>s+b.qty,0)}罐）</div>`;exp.forEach(b=>{h+=bRow(b,'exp','罐');});}
-    if(warn.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--warn);margin:8px 0 6px">🟡 即將到期（7–9天，共${warn.reduce((s,b)=>s+b.qty,0)}罐）</div>`;warn.forEach(b=>{h+=bRow(b,'warn','罐');});}
-    if(ok.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 正常（<7天，共${ok.reduce((s,b)=>s+b.qty,0)}罐）</div>`;ok.forEach(b=>{h+=bRow(b,'ok','罐');});}
+    if(ok.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 門市庫存（共${ok.reduce((s,b)=>s+b.qty,0)}罐）</div>`;ok.forEach(b=>{h+=bRow(b,'ok','罐');});}
     if(ref.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--blu);margin:8px 0 6px">🔵 包裝類</div>`;ref.forEach(b=>{h+=bRow(b,'ref','件');});}
   }
   h+=`</div>`;el.innerHTML=h;
