@@ -622,6 +622,9 @@ async function checkout(){
   isCheckingOut=true;
   renderPOSBar(); // 立即更新按鈕為 loading 狀態
 
+  // ── 結帳前先同步最新庫存（避免覆蓋其他裝置或訂單系統剛寫入的變更）──
+  if(Date.now()-lastLoadTime>15000){ try{ await loadAll(); }catch(e){ console.warn('pre-checkout reload',e); } }
+
   // ── 快照：若 save 失敗可完整回滾 ──
   const snapStks=JSON.parse(JSON.stringify(stks));
   const snapBatches=JSON.parse(JSON.stringify(batches));
@@ -664,6 +667,74 @@ async function checkout(){
   }finally{
     isCheckingOut=false;
     updateAlertBanner();renderPOS();
+  }
+}
+// ── 訂單系統出貨單（kschen1011.github.io/orders 送來的標準罐出貨）──
+let shipBusy=false,shipAgain=false,shipCooldown=0;
+function startShipQueue(){
+  try{
+    pos.where('shipPending','==',true).onSnapshot(s=>{
+      if(s.docChanges().some(c=>c.type==='removed'))lastLoadTime=0; // 別的裝置處理過，下次動作前重新同步
+      if(!s.empty)processShipQueue();
+    },e=>console.warn('shipQueue',e));
+  }catch(e){console.warn('shipQueue',e);}
+  setInterval(()=>processShipQueue(),120000);
+}
+async function processShipQueue(){
+  if(Date.now()<shipCooldown)return;
+  if(shipBusy||isCheckingOut){shipAgain=true;return;}
+  shipBusy=true;
+  let n=0;
+  try{
+    do{
+      shipAgain=false;
+      const q=await pos.where('shipPending','==',true).get();
+      if(q.empty)break;
+      await loadAll(); // 用最新資料扣庫存
+      for(const d of q.docs){
+        const ref=d.ref;let job=null;
+        try{
+          await db.runTransaction(async t=>{
+            const x=await t.get(ref);
+            if(x.exists&&x.data().shipPending){job=x.data();t.update(ref,{shipPending:false,status:'processing',claimedAt:new Date().toISOString()});}
+          });
+        }catch(e){console.warn('ship claim',e);continue;}
+        if(!job)continue; // 已被其他裝置處理
+        const ym=ymStr(new Date());
+        if(!salesCache[ym])await loadSalesMonth(ym);
+        const snapStks=JSON.parse(JSON.stringify(stks)),snapBatches=JSON.parse(JSON.stringify(batches)),snapMvs=[...mvs],snapSales=[...(salesCache[ym]||[])];
+        const label=job.orderName||'';
+        const items=(job.items||[]).filter(i=>getProd(i.pid)&&Number(i.qty)>0)
+          .map(i=>({pid:i.pid,name:getProd(i.pid).name,qty:Number(i.qty),unitPrice:Number(i.unitPrice)||getProd(i.pid).price||0}));
+        for(const it of items){
+          const deds=fifoDeduct(it.pid,it.qty);
+          if(deds.length)it.batchDeductions=deds;
+          mvs.push({id:genId(),ts:new Date().toISOString(),pid:it.pid,name:it.name,type:'out',qty:it.qty,
+            reason:'訂單出貨['+label+'] 批次:'+(deds.length?deds.map(x=>x.date).join(','):'未知')});
+        }
+        let saleId=null;
+        if(job.revenue&&items.length){
+          saleId=genId();
+          salesCache[ym].push({id:saleId,ts:new Date().toISOString(),items,total:items.reduce((t,i)=>t+i.qty*i.unitPrice,0),discount:0,custType:'online',source:'訂單系統',orderName:label});
+        }
+        try{
+          await Promise.all([saveInv(),saveBatches(),saveMvs(),saleId?saveSales(ym):Promise.resolve()]);
+          await ref.update({status:'done',doneAt:new Date().toISOString(),saleId});
+          n++;
+        }catch(e){
+          console.error('ship save',e);
+          stks=snapStks;batches=snapBatches;mvs=snapMvs;salesCache[ym]=snapSales;
+          try{await ref.update({shipPending:true,status:'pending',error:String(e.message||e)});}catch(_){}
+          shipCooldown=Date.now()+60000;
+          showToast('❌ 訂單出貨同步失敗，1 分鐘後自動重試','error');
+          break;
+        }
+      }
+    }while(shipAgain&&Date.now()>=shipCooldown);
+  }catch(e){console.error('processShipQueue',e);shipCooldown=Date.now()+60000;}
+  finally{
+    shipBusy=false;
+    if(n){showToast('📦 已處理 '+n+' 筆訂單出貨','ok');updateAlertBanner();rerenderCurrent();}
   }
 }
 async function deleteSale(ym,id){
@@ -1862,6 +1933,7 @@ async function init(){
     await loadAll();
     updateAlertBanner();
     renderPOS();
+    startShipQueue();
   }catch(e){console.error('init',e);setSyncStatus(false);}
   setTimeout(()=>{
     const ld=document.getElementById('ld');
