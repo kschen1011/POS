@@ -1632,7 +1632,10 @@ function renderRepToday(el){
         <div class="sli-l">
           <div class="sli-time">${fmtTime(s.ts)}</div>
           <div class="sli-items">${s.items.map(i=>esc(i.name)+'×'+i.qty).join(', ')}</div>
-          <div class="ct-tag ct-${ct}">${ct==='walkin'?'🏪 現場':'📱 預訂'}</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <div class="ct-tag ct-${ct}">${ct==='walkin'?'🏪 現場':'📱 預訂'}</div>
+            ${s.operator?`<span style="background:#f0e8e0;color:var(--p);padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700">👤 ${esc(s.operator)}</span>`:''}
+          </div>
         </div>
         <div class="sli-r">
           <div class="sli-total">NT$${s.total.toLocaleString()}</div>
