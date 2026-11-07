@@ -34,6 +34,25 @@ body.has-banner{--bh:40px}
 .tb-logo{font-size:13px;font-weight:800}.tb-st{display:flex;align-items:center;gap:5px;font-size:11px}
 .sdot{width:7px;height:7px;border-radius:50%;background:#ccc;transition:background .3s}
 .sdot.ok{background:#4CD964}.sdot.err{background:#FF3B30}
+/* ── Operator Badge ── */
+#op-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+#op-badge:hover{background:rgba(255,255,255,.35)}
+/* ── Operator Select Screen ── */
+#op-screen{position:fixed;inset:0;background:var(--p);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#op-screen.hide{display:none}
+.op-title{color:#fff;font-size:22px;font-weight:800;margin-bottom:8px;text-align:center}
+.op-sub{color:rgba(255,255,255,.75);font-size:14px;margin-bottom:32px;text-align:center}
+.op-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:320px}
+.op-btn{background:#fff;color:var(--p);border:none;border-radius:14px;padding:18px 8px;font-size:18px;font-weight:800;cursor:pointer;transition:transform .1s}
+.op-btn:active{transform:scale(.95)}
+/* ── Operator Switch Overlay ── */
+#op-switch{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;display:none;align-items:flex-end;justify-content:center}
+#op-switch.show{display:flex}
+#op-switch-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 16px 36px}
+.ops-title{font-size:15px;font-weight:800;color:var(--p);margin-bottom:14px}
+.ops-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.ops-btn{background:var(--bg);border:2px solid var(--bdr);border-radius:12px;padding:12px 6px;font-size:16px;font-weight:700;cursor:pointer;text-align:center}
+.ops-btn.active{border-color:var(--p);background:#fdf3ec;color:var(--p)}
 #main{padding-top:calc(var(--top) + var(--bh) + 2px);padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 32px)}
 .view{display:none;padding:10px 12px 8px}.view.show{display:block}
 #nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:#fff;border-top:1px solid var(--bdr);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
@@ -58,8 +77,7 @@ body.has-banner{--bh:40px}
 .pcard:active{transform:scale(.96)}.pcard.on{border-color:var(--p);background:var(--pl)}
 .pcard.oos{opacity:.4;pointer-events:none}
 .pn{font-size:13px;font-weight:700;line-height:1.3}.pp{font-size:15px;font-weight:800;color:var(--p);margin-top:3px}
-.ps{font-size:11px;color:var(--muted);margin-top:1px}.ps.low{color:var(--warn)}.ps.oos{color:var(--err)}
-.cqb{position:absolute;top:-7px;right:-7px;background:var(--p);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ps{font-size:11px;color:var(--muted);margin-top:1px}.ps.low{color:var(--warn)}.ps.oos{color:var(--err)}.cqb{position:absolute;top:-7px;right:-7px;background:var(--p);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .ci{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}.ci:last-child{border-bottom:none}
 .ci-nm{flex:1;font-size:13px;font-weight:500}.ci-qty{display:flex;align-items:center;gap:6px}
 .qbtn{width:28px;height:28px;border-radius:7px;border:1px solid var(--bdr);background:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -141,14 +159,10 @@ body.has-banner{--bh:40px}
 .pos-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .pos-bar-total{font-size:20px;font-weight:800}
 .pos-bar-disc{font-size:12px;color:var(--ok)}
-body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset-bottom,0px))}
+body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(safe-area-inset-bottom,0px))}
 @media(min-width:480px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:768px){.pgrid{grid-template-columns:repeat(4,1fr)}.statrow{grid-template-columns:repeat(4,1fr)}}
 
-/* ── Receipt Modal ── */
-#receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
-#receipt-overlay.show{display:flex}
-#receipt-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px 20px 44px}
 /* ── Bulk Instock Modal ── */
 #bulk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
 #bulk-overlay.show{display:flex}
@@ -164,6 +178,10 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
 .bulk-date-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:#fdf6f0;border-radius:10px}
 .bulk-date-row label{font-size:13px;font-weight:700;flex:1}
 .bulk-date-row input{border:1.5px solid #d0c0b0;border-radius:8px;padding:5px 8px;font-size:14px}
+/* ── Receipt Modal ── */
+#receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:none;align-items:flex-end;justify-content:center}
+#receipt-overlay.show{display:flex}
+#receipt-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px 20px 44px}
 .rcpt-head{text-align:center;padding-bottom:16px;border-bottom:2px dashed #e0d0c0;margin-bottom:14px}
 .rcpt-brand{font-size:28px;margin-bottom:4px}
 .rcpt-shop{font-size:17px;font-weight:800;color:#1a1a1a;letter-spacing:.05em}
@@ -231,12 +249,29 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
   <div class="ld-sb">THE HALF KITCHEN · POS v5.0</div>
   <div class="ld-dots"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div></div>
 </div>
+<!-- 選人頁（首次開啟） -->
+<div id="op-screen">
+  <div class="op-title">👋 你是哪位夥伴？</div>
+  <div class="op-sub">選擇後會記住，下次直接進入</div>
+  <div class="op-grid" id="op-grid"></div>
+</div>
+<!-- 切換操作者 overlay -->
+<div id="op-switch" onclick="if(event.target===this)closeOpSwitch()">
+  <div id="op-switch-sheet">
+    <div class="ops-title">👤 切換操作者</div>
+    <div class="ops-grid" id="ops-grid"></div>
+    <button class="btn btn-s btn-sm btn-full" onclick="closeOpSwitch()">取消</button>
+  </div>
+</div>
 <div id="topbar">
   <span class="tb-logo">🍪 半吊子廚房 POS</span>
-  <div class="tb-st" style="cursor:pointer" onclick="refreshIfStale(true)" title="點此手動同步">
-    <div class="sdot" id="sdot"></div>
-    <span id="slbl" style="color:rgba(255,255,255,.8)">連線中...</span>
-    <span style="color:rgba(255,255,255,.5);font-size:10px;margin-left:2px">↻</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span id="op-badge" onclick="openOpSwitch()">👤 ...</span>
+    <div class="tb-st" style="cursor:pointer" onclick="refreshIfStale(true)" title="點此手動同步">
+      <div class="sdot" id="sdot"></div>
+      <span id="slbl" style="color:rgba(255,255,255,.8)">連線中...</span>
+      <span style="color:rgba(255,255,255,.5);font-size:10px;margin-left:2px">↻</span>
+    </div>
   </div>
 </div>
 <div id="alert-banner">⚠️ 有雪球批次已超過 10 天！請盡快促銷處理。</div>
@@ -267,6 +302,7 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + 114px + env(safe-area-inset
     <div class="stabs" id="set-tabs">
       <button class="stab on" onclick="setSetTab('prods')">🏷 商品管理</button>
       <button class="stab" onclick="setSetTab('stk')">📦 成品庫存</button>
+      <button class="stab" onclick="setSetTab('ops')">👤 夥伴管理</button>
       <button class="stab" onclick="setSetTab('mat')">🌾 原料庫存</button>
     </div>
     <div id="set-body"></div>
@@ -379,6 +415,8 @@ const BOM={
 
 // ── State ──
 let prods=[],mats=[],stks={},batches={},mvs=[],salesCache={},preorders=[];
+let operators=['KS','YP','YH','YR','CT']; // 從 Firebase 載入後覆蓋
+let currentOp=localStorage.getItem('hk_operator')||'';
 let isCheckingOut=false; // 防止重複結帳
 let _toastTimer=null;
 function showToast(msg,type=''){
@@ -468,7 +506,7 @@ function updateAlertBanner(){
 // ── Data Load/Save ──
 async function loadAll(){
   try{
-    const[ps,is,bs,ms,pr]=await Promise.all([pos.doc('products').get(),pos.doc('inventory').get(),pos.doc('batches').get(),pos.doc('movements').get(),pos.doc('preorders').get()]);
+    const[ps,is,bs,ms,pr,op]=await Promise.all([pos.doc('products').get(),pos.doc('inventory').get(),pos.doc('batches').get(),pos.doc('movements').get(),pos.doc('preorders').get(),pos.doc('operators').get()]);
     if(ps.exists)prods=ps.data().items||[];
     if(is.exists){stks=is.data().stks||{};mats=is.data().mats||[];}
     if(bs.exists){
@@ -479,6 +517,8 @@ async function loadAll(){
     }
     if(ms.exists)mvs=ms.data().mvs||[];
     if(pr.exists)preorders=pr.data().items||[];
+    if(op.exists&&op.data().list?.length)operators=op.data().list;
+    else await pos.doc('operators').set({list:operators}); // 首次：寫入預設名單
     await loadSalesMonth(ymStr(new Date()));
     // Safety check: if products still empty after load, just warn (DO NOT wipe data)
     if(!prods||prods.length===0){
@@ -491,6 +531,7 @@ async function loadAll(){
     }
     lastLoadTime=Date.now();
     setSyncStatus(true);
+    initOperator(); // 資料載入後才初始化操作者畫面
   }catch(e){console.error('loadAll',e);setSyncStatus(false);}
 }
 async function loadSalesMonth(ym){
@@ -622,9 +663,6 @@ async function checkout(){
   isCheckingOut=true;
   renderPOSBar(); // 立即更新按鈕為 loading 狀態
 
-  // ── 結帳前先同步最新庫存（避免覆蓋其他裝置或訂單系統剛寫入的變更）──
-  if(Date.now()-lastLoadTime>15000){ try{ await loadAll(); }catch(e){ console.warn('pre-checkout reload',e); } }
-
   // ── 快照：若 save 失敗可完整回滾 ──
   const snapStks=JSON.parse(JSON.stringify(stks));
   const snapBatches=JSON.parse(JSON.stringify(batches));
@@ -633,7 +671,7 @@ async function checkout(){
 
   const total=calcTotal(),disc=getDisc(),ym=ymStr(new Date());
   const recItems=cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};});
-  const rec={id:genId(),ts:new Date().toISOString(),items:recItems,total,discount:disc,custType};
+  const rec={id:genId(),ts:new Date().toISOString(),items:recItems,total,discount:disc,custType,operator:currentOp||''};
 
   // FIFO 扣庫存，記錄批次來源
   for(const c of cart){
@@ -642,7 +680,7 @@ async function checkout(){
     const item=rec.items.find(i=>i.pid===c.pid);
     if(item&&deds.length>0)item.batchDeductions=deds;
     const batchInfo=deds.length>0?deds.map(d=>d.date).join(','):'未知';
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid:c.pid,name:p.name,type:'out',qty:c.qty,operator:currentOp||'',
       reason:'POS銷售['+(custType==='walkin'?'現場':'預訂')+'] 批次:'+batchInfo});
   }
   if(!salesCache[ym])salesCache[ym]=[];
@@ -667,74 +705,6 @@ async function checkout(){
   }finally{
     isCheckingOut=false;
     updateAlertBanner();renderPOS();
-  }
-}
-// ── 訂單系統出貨單（kschen1011.github.io/orders 送來的標準罐出貨）──
-let shipBusy=false,shipAgain=false,shipCooldown=0;
-function startShipQueue(){
-  try{
-    pos.where('shipPending','==',true).onSnapshot(s=>{
-      if(s.docChanges().some(c=>c.type==='removed'))lastLoadTime=0; // 別的裝置處理過，下次動作前重新同步
-      if(!s.empty)processShipQueue();
-    },e=>console.warn('shipQueue',e));
-  }catch(e){console.warn('shipQueue',e);}
-  setInterval(()=>processShipQueue(),120000);
-}
-async function processShipQueue(){
-  if(Date.now()<shipCooldown)return;
-  if(shipBusy||isCheckingOut){shipAgain=true;return;}
-  shipBusy=true;
-  let n=0;
-  try{
-    do{
-      shipAgain=false;
-      const q=await pos.where('shipPending','==',true).get();
-      if(q.empty)break;
-      await loadAll(); // 用最新資料扣庫存
-      for(const d of q.docs){
-        const ref=d.ref;let job=null;
-        try{
-          await db.runTransaction(async t=>{
-            const x=await t.get(ref);
-            if(x.exists&&x.data().shipPending){job=x.data();t.update(ref,{shipPending:false,status:'processing',claimedAt:new Date().toISOString()});}
-          });
-        }catch(e){console.warn('ship claim',e);continue;}
-        if(!job)continue; // 已被其他裝置處理
-        const ym=ymStr(new Date());
-        if(!salesCache[ym])await loadSalesMonth(ym);
-        const snapStks=JSON.parse(JSON.stringify(stks)),snapBatches=JSON.parse(JSON.stringify(batches)),snapMvs=[...mvs],snapSales=[...(salesCache[ym]||[])];
-        const label=job.orderName||'';
-        const items=(job.items||[]).filter(i=>getProd(i.pid)&&Number(i.qty)>0)
-          .map(i=>({pid:i.pid,name:getProd(i.pid).name,qty:Number(i.qty),unitPrice:Number(i.unitPrice)||getProd(i.pid).price||0}));
-        for(const it of items){
-          const deds=fifoDeduct(it.pid,it.qty);
-          if(deds.length)it.batchDeductions=deds;
-          mvs.push({id:genId(),ts:new Date().toISOString(),pid:it.pid,name:it.name,type:'out',qty:it.qty,
-            reason:'訂單出貨['+label+'] 批次:'+(deds.length?deds.map(x=>x.date).join(','):'未知')});
-        }
-        let saleId=null;
-        if(job.revenue&&items.length){
-          saleId=genId();
-          salesCache[ym].push({id:saleId,ts:new Date().toISOString(),items,total:items.reduce((t,i)=>t+i.qty*i.unitPrice,0),discount:0,custType:'online',source:'訂單系統',orderName:label});
-        }
-        try{
-          await Promise.all([saveInv(),saveBatches(),saveMvs(),saleId?saveSales(ym):Promise.resolve()]);
-          await ref.update({status:'done',doneAt:new Date().toISOString(),saleId});
-          n++;
-        }catch(e){
-          console.error('ship save',e);
-          stks=snapStks;batches=snapBatches;mvs=snapMvs;salesCache[ym]=snapSales;
-          try{await ref.update({shipPending:true,status:'pending',error:String(e.message||e)});}catch(_){}
-          shipCooldown=Date.now()+60000;
-          showToast('❌ 訂單出貨同步失敗，1 分鐘後自動重試','error');
-          break;
-        }
-      }
-    }while(shipAgain&&Date.now()>=shipCooldown);
-  }catch(e){console.error('processShipQueue',e);shipCooldown=Date.now()+60000;}
-  finally{
-    shipBusy=false;
-    if(n){showToast('📦 已處理 '+n+' 筆訂單出貨','ok');updateAlertBanner();rerenderCurrent();}
   }
 }
 async function deleteSale(ym,id){
@@ -792,11 +762,11 @@ async function addStock(pid,qty,bDate){
     stks[pid]=(stks[pid]||0)+qty;
     if(!batches[pid])batches[pid]=[];
     batches[pid].push({date:bDate||today(),qty,madeAt:new Date().toISOString(),location:'store'});
-    mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p.name,type:'in',qty,reason:'進貨(批次:'+(bDate||today())+')',batchDate:bDate||today()});
+    mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p.name,type:'in',qty,operator:currentOp||'',reason:'進貨(批次:'+(bDate||today())+')',batchDate:bDate||today()});
     inFormOpen[pid]=false;
     await Promise.all([saveInv(),saveBatches(),saveMvs()]);
     updateAlertBanner();renderInventory();renderPOS();
-    alert('✅ 入庫成功！\n商品：'+p.name+'\n數量：+'+qty+' 罐\n製作日期：'+(bDate||today()));
+    alert('✅ 入庫成功！\n商品：'+p.name+'\n數量：+'+qty+' 罐\n製作日期：'+(bDate||today())+'\n操作者：'+(currentOp||'未登入'));
   }catch(e){
     stks[pid]=Math.max(0,(stks[pid]||0)-qty);
     batches[pid]=(batches[pid]||[]);batches[pid].pop();
@@ -825,7 +795,7 @@ async function adjustStock(pid,qty,reason){
     batches[pid].push({date:makeDate,qty,madeAt:new Date().toISOString(),location:'store',note:reason});
     stks[pid]=(stks[pid]||0)+qty;
   }
-  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'adjust',qty,reason});
+  mvs.push({id:genId(),ts:new Date().toISOString(),pid,name:p?p.name:'',type:'adjust',qty,operator:currentOp||'',reason});
   adjFormOpen[pid]=false;
   await Promise.all([saveInv(),saveBatches(),saveMvs()]);
   updateAlertBanner();renderInventory();
@@ -865,7 +835,7 @@ function setRepTab(t){
 }
 function setSetTab(t){
   setTab_=t;
-  document.querySelectorAll('#set-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['prods','stk','mat'][i]===t));
+  document.querySelectorAll('#set-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['prods','stk','mat','ops'][i]===t));
   renderSettings();
 }
 
@@ -971,6 +941,10 @@ function renderPOSBar(){
     <button class="ck-btn" style="margin-top:0;${isCheckingOut?'opacity:.5;pointer-events:none':''}" onclick="checkout()">
       ${isCheckingOut?'⏳ 結帳處理中...':'🏪 現場結帳 NT$'+total.toLocaleString()}
     </button>`}`;
+  // 量 pos-bar 實際高度，動態更新 #main padding，避免內容被遮住
+  requestAnimationFrame(()=>{
+    document.documentElement.style.setProperty('--bar-h', bar.offsetHeight+'px');
+  });
 }
 function toggleModPanel(){modMode=modMode===null?'none':null;if(modMode===null)customAmt=null;renderPOS();}
 function setModMode(m){
@@ -1064,7 +1038,7 @@ async function submitBulkInstock(){
   }
   if(!items.length){alert('請至少勾選一個口味');return;}
   const summary=items.map(i=>`• ${i.name}：+${i.qty} 罐`).join('\n');
-  if(!confirm('確認以下入庫？\n製作日期：'+bDate+'\n\n'+summary+'\n\n按確定後會寫入系統'))return;
+  if(!confirm('確認以下入庫？\n製作日期：'+bDate+'\n操作者：'+(currentOp||'未登入')+'\n\n'+summary))return;
   window._bulkLock=true;
   const btn=document.getElementById('bulk-submit-btn');
   if(btn){btn.disabled=true;btn.textContent='儲存中...';}
@@ -1075,13 +1049,13 @@ async function submitBulkInstock(){
       stks[pid]=(stks[pid]||0)+qty;
       if(!batches[pid])batches[pid]=[];
       batches[pid].push({date:bDate,qty,madeAt:new Date().toISOString(),location:'store'});
-      mvs.push({id:genId(),ts:new Date().toISOString(),pid,name,type:'in',qty,reason:'批次入庫(製作日期:'+bDate+')',batchDate:bDate});
+      mvs.push({id:genId(),ts:new Date().toISOString(),pid,name,type:'in',qty,operator:currentOp||'',reason:'批次入庫(製作日期:'+bDate+')',batchDate:bDate});
     });
     await Promise.all([saveInv(),saveBatches(),saveMvs()]);
     closeBulkInstock();
     updateAlertBanner();renderInventory();renderPOS();
     const resultLines=items.map(i=>`• ${i.name}：+${i.qty} 罐`).join('\n');
-    alert('✅ 批次入庫成功！\n製作日期：'+bDate+'\n\n'+resultLines);
+    alert('✅ 批次入庫成功！\n製作日期：'+bDate+'\n操作者：'+(currentOp||'未登入')+'\n\n'+resultLines);
   }catch(e){
     items.forEach(({pid})=>{stks[pid]=backup.stks[pid];batches[pid]=backup.batches[pid];});
     mvs.splice(0,mvs.length,...backup.mvs);
@@ -1090,6 +1064,56 @@ async function submitBulkInstock(){
   }finally{
     window._bulkLock=false;
   }
+}
+
+// ── OPERATOR ──
+function initOperator(){
+  const screen=document.getElementById('op-screen');
+  if(!screen)return;
+  renderOpGrid();
+  if(currentOp&&operators.includes(currentOp)){
+    screen.classList.add('hide');
+    updateOpBadge();
+  }else{
+    screen.classList.remove('hide');
+  }
+}
+function renderOpGrid(){
+  const grid=document.getElementById('op-grid');
+  if(!grid)return;
+  grid.innerHTML=operators.map(op=>`<button class="op-btn" onclick="selectOperator('${esc(op)}')">${esc(op)}</button>`).join('');
+}
+function selectOperator(op){
+  currentOp=op;
+  localStorage.setItem('hk_operator',op);
+  document.getElementById('op-screen')?.classList.add('hide');
+  updateOpBadge();
+}
+function updateOpBadge(){
+  const b=document.getElementById('op-badge');
+  if(b)b.textContent='👤 '+( currentOp||'?');
+}
+function openOpSwitch(){
+  const grid=document.getElementById('ops-grid');
+  if(grid)grid.innerHTML=operators.map(op=>`<button class="ops-btn ${op===currentOp?'active':''}" onclick="selectOperator('${esc(op)}');closeOpSwitch()">${esc(op)}</button>`).join('');
+  document.getElementById('op-switch')?.classList.add('show');
+}
+function closeOpSwitch(){document.getElementById('op-switch')?.classList.remove('show');}
+async function saveOperators(){await pos.doc('operators').set({list:operators});}
+async function addOperator(name){
+  name=name.trim();
+  if(!name){alert('請輸入名稱');return;}
+  if(operators.includes(name)){alert('已存在');return;}
+  operators.push(name);
+  await saveOperators();
+  renderSettings();
+}
+async function removeOperator(name){
+  if(!confirm('確定刪除「'+name+'」？\n（歷史紀錄不受影響）'))return;
+  operators=operators.filter(o=>o!==name);
+  await saveOperators();
+  if(currentOp===name){currentOp='';localStorage.removeItem('hk_operator');updateOpBadge();}
+  renderSettings();
 }
 
 // ── Pre-order System ──
@@ -1267,7 +1291,7 @@ async function repairBatches(){
   }
   await saveBatches();
   updateAlertBanner();renderInventory();
-  alert('✅ 清理完成！\n共移除 '+cleaned+' 筆無效批次記錄。\n\n若警告仍在，表示確實有超過10天的庫存，請檢查批次總覽。');
+  alert('✅ 清理完成！\n共移除 '+cleaned+' 筆無效批次記錄。');
 }
 
 // ── Delete Batch ──
@@ -1378,7 +1402,7 @@ function renderInvGoods(el){
           const days=daysDiff(b.date),isRef=p.category==='packaging';
           const isConsign=b.location==='consignment';
           const wasReturned=b.returnedAt&&b.location==='store';
-          const cls=isRef?'ref':isConsign?'consign':days>=10?'exp':days>=7?'warn':'ok';
+          const cls=isRef?'ref':isConsign?'consign':'ok';
           const isEd=editBatch&&editBatch.pid===p.id&&editBatch.bi===i;
           const locTag=isConsign
             ?`<span class="bloc-consign">🚚 農會中 ${daysSince(b.consignedAt)}天</span>`
@@ -1428,7 +1452,7 @@ function renderInvBatches(el){
   if(!all.length){h+=`<div class="empty"><div class="ei">📭</div><div class="et">目前無庫存批次</div></div>`;
   }else{
     const consign=all.filter(b=>b.p.category==='snowball'&&b.location==='consignment');
-    const ok=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment');
+    const store=all.filter(b=>b.p.category==='snowball'&&b.location!=='consignment');
     const ref=all.filter(b=>b.p.category==='packaging');
     function bRow(b,cls,unit){
       const locBadge=b.location==='consignment'
@@ -1443,7 +1467,7 @@ function renderInvBatches(el){
       </div>`;
     }
     if(consign.length){h+=`<div style="font-size:13px;font-weight:700;color:#E65100;margin-bottom:6px">🚚 農會寄售中（${consign.reduce((s,b)=>s+b.qty,0)}罐）</div>`;consign.forEach(b=>{h+=bRow(b,'consign','罐');});}
-    if(ok.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 門市庫存（共${ok.reduce((s,b)=>s+b.qty,0)}罐）</div>`;ok.forEach(b=>{h+=bRow(b,'ok','罐');});}
+    if(store.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--ok);margin:8px 0 6px">🟢 門市庫存（共${store.reduce((s,b)=>s+b.qty,0)}罐）</div>`;store.forEach(b=>{h+=bRow(b,'ok','罐');});}
     if(ref.length){h+=`<div style="font-size:13px;font-weight:700;color:var(--blu);margin:8px 0 6px">🔵 包裝類</div>`;ref.forEach(b=>{h+=bRow(b,'ref','件');});}
   }
   h+=`</div>`;el.innerHTML=h;
@@ -1753,7 +1777,7 @@ function renderRepMv(el){
     const tl=m.type==='in'?'📥 進庫':m.type==='out'?'📤 出庫':'⚖️ 人工調整';
     h+=`<div class="sli">
       <div class="sli-l">
-        <div style="color:${tc};font-size:12px;font-weight:700">${tl}</div>
+        <div style="color:${tc};font-size:12px;font-weight:700">${tl}${m.operator?`<span style="margin-left:6px;background:#f0e8e0;color:var(--p);padding:1px 6px;border-radius:8px;font-size:11px">${esc(m.operator)}</span>`:''}</div>
         <div class="sli-items">${esc(m.name||'')}</div>
         <div class="sli-time">${m.ts?fmtDT(m.ts):''}</div>
       </div>
@@ -1792,6 +1816,7 @@ function renderSettings(){
   const el=document.getElementById('set-body');if(!el)return;
   if(setTab_==='prods')renderSetProds(el);
   else if(setTab_==='stk')renderSetStk(el);
+  else if(setTab_==='ops')renderSetOps(el);
   else renderSetMat(el);
 }
 function renderSetProds(el){
@@ -1916,6 +1941,29 @@ async function doAddProd(cat){
 }
 async function saveStk(){await saveInv();alert('✅ 庫存已儲存');renderPOS();}
 async function saveMats(){await saveInv();alert('✅ 原料設定已儲存');}
+function renderSetOps(el){
+  let h=`<div class="card"><div class="card-title">👤 夥伴管理</div>`;
+  h+=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px">每台手機只需選一次，名單變更後所有手機同步</div>`;
+  operators.forEach(op=>{
+    const isMe=op===currentOp;
+    h+=`<div class="set-item">
+      <div style="font-size:15px;font-weight:700">${esc(op)}${isMe?'<span style="font-size:11px;color:var(--p);margin-left:6px">（本機）</span>':''}</div>
+      <button class="btn btn-s btn-xs" style="color:var(--err);border-color:var(--err)" onclick="removeOperator('${esc(op)}')">刪除</button>
+    </div>`;
+  });
+  h+=`<div style="display:flex;gap:8px;margin-top:12px">
+    <input type="text" id="new-op-name" placeholder="輸入新夥伴名稱" style="flex:1;padding:8px;border:1.5px solid var(--bdr);border-radius:8px;font-size:14px">
+    <button class="btn btn-p btn-sm" onclick="addOperator(document.getElementById('new-op-name').value)">新增</button>
+  </div>`;
+  h+=`<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">切換本機操作者</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${operators.map(op=>`<button class="btn ${op===currentOp?'btn-p':'btn-s'} btn-sm" onclick="selectOperator('${esc(op)}');renderSettings()">${esc(op)}</button>`).join('')}
+    </div>
+  </div>`;
+  h+=`</div>`;
+  el.innerHTML=h;
+}
 async function doAddMat(){
   const nm=(document.getElementById('nm-nm')?.value||'').trim();
   const st=parseFloat(document.getElementById('nm-st')?.value)||0;
@@ -1933,7 +1981,6 @@ async function init(){
     await loadAll();
     updateAlertBanner();
     renderPOS();
-    startShipQueue();
   }catch(e){console.error('init',e);setSyncStatus(false);}
   setTimeout(()=>{
     const ld=document.getElementById('ld');
