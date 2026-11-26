@@ -303,6 +303,7 @@ body.has-cart #main{padding-bottom:calc(var(--nav) + var(--bar-h, 140px) + env(s
       <button class="stab on" onclick="setSetTab('prods')">🏷 商品管理</button>
       <button class="stab" onclick="setSetTab('stk')">📦 成品庫存</button>
       <button class="stab" onclick="setSetTab('ops')">👤 夥伴管理</button>
+      <button class="stab" onclick="setSetTab('log')">🧾 結帳記錄</button>
       <button class="stab" onclick="setSetTab('mat')">🌾 原料庫存</button>
     </div>
     <div id="set-body"></div>
@@ -655,6 +656,19 @@ function fifoDeduct(pid,qty){
 }
 
 // ── Checkout ──
+// ── 結帳本地 Log（localStorage，不依賴 Firebase）──
+function coLog(entry){
+  try{
+    const logs=JSON.parse(localStorage.getItem('hk_co_log')||'[]');
+    logs.push(entry);
+    if(logs.length>200)logs.splice(0,logs.length-200);
+    localStorage.setItem('hk_co_log',JSON.stringify(logs));
+  }catch(e){}
+}
+function getCoLogs(){
+  try{return JSON.parse(localStorage.getItem('hk_co_log')||'[]');}catch(e){return[];}
+}
+
 async function checkout(){
   // ── 防呆：防止重複結帳 ──
   if(isCheckingOut){showToast('結帳處理中，請稍候...');return;}
@@ -673,6 +687,11 @@ async function checkout(){
   const recItems=cart.map(c=>{const p=getProd(c.pid);return{pid:c.pid,name:p.name,qty:c.qty,unitPrice:p.price};});
   const rec={id:genId(),ts:new Date().toISOString(),items:recItems,total,discount:disc,custType,operator:currentOp||''};
 
+  // ── 本地 log：記錄嘗試（pending）──
+  const logEntry={id:rec.id,ts:rec.ts,operator:rec.operator,total:rec.total,
+    items:recItems.map(i=>i.name+'×'+i.qty).join(', '),status:'pending'};
+  coLog(logEntry);
+
   // FIFO 扣庫存，記錄批次來源
   for(const c of cart){
     const p=getProd(c.pid);if(!p)continue;
@@ -689,11 +708,21 @@ async function checkout(){
   try{
     await Promise.all([saveSales(ym),saveInv(),saveBatches(),saveMvs()]);
     setSyncStatus(true);
-    // ✅ 儲存成功後才清購物車
+    // ✅ 儲存成功：更新本地 log 狀態
+    try{
+      const logs=getCoLogs();
+      const idx=logs.findIndex(l=>l.id===rec.id);
+      if(idx>=0){logs[idx].status='ok';localStorage.setItem('hk_co_log',JSON.stringify(logs));}
+    }catch(e){}
     cart=[];modMode=null;customAmt=null;
     showToast('✅ 結帳成功！','ok');
   }catch(e){
-    // ❌ 儲存失敗：完整回滾，保留購物車讓店員重試
+    // ❌ 儲存失敗：更新本地 log 狀態為 failed
+    try{
+      const logs=getCoLogs();
+      const idx=logs.findIndex(l=>l.id===rec.id);
+      if(idx>=0){logs[idx].status='failed';logs[idx].err=e.message||'unknown';localStorage.setItem('hk_co_log',JSON.stringify(logs));}
+    }catch(e2){}
     console.error('Checkout save failed:',e);
     stks=snapStks;
     batches=snapBatches;
@@ -701,7 +730,8 @@ async function checkout(){
     cart=snapCart;
     salesCache[ym]=(salesCache[ym]||[]).filter(s=>s.id!==rec.id);
     setSyncStatus(false);
-    showToast('❌ 結帳失敗，庫存已還原，請檢查網路後重試','error');
+    // ❌ 明顯警示：alert 確保店員看到
+    alert('❌ 結帳失敗！\n\n購物車已保留，請確認網路後重新結帳。\n\n（此筆已記錄在設定→結帳記錄）');
   }finally{
     isCheckingOut=false;
     updateAlertBanner();renderPOS();
@@ -835,7 +865,7 @@ function setRepTab(t){
 }
 function setSetTab(t){
   setTab_=t;
-  document.querySelectorAll('#set-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['prods','stk','mat','ops'][i]===t));
+  document.querySelectorAll('#set-tabs .stab').forEach((el,i)=>el.classList.toggle('on',['prods','stk','mat','ops','log'][i]===t));
   renderSettings();
 }
 
@@ -1820,6 +1850,7 @@ function renderSettings(){
   if(setTab_==='prods')renderSetProds(el);
   else if(setTab_==='stk')renderSetStk(el);
   else if(setTab_==='ops')renderSetOps(el);
+  else if(setTab_==='log')renderSetLog(el);
   else renderSetMat(el);
 }
 function renderSetProds(el){
@@ -1967,6 +1998,56 @@ function renderSetOps(el){
   h+=`</div>`;
   el.innerHTML=h;
 }
+function renderSetLog(el){
+  const logs=getCoLogs().slice().reverse(); // 最新在前
+  const failed=logs.filter(l=>l.status==='failed');
+  const pending=logs.filter(l=>l.status==='pending');
+  let h=`<div class="card">`;
+  h+=`<div class="fb mb8"><span class="card-title">🧾 結帳記錄</span>`;
+  h+=`<button class="btn btn-s btn-xs" onclick="if(confirm('確定清除所有結帳記錄？')){localStorage.removeItem('hk_co_log');renderSettings();}">清除記錄</button></div>`;
+  h+=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px">儲存在本機，可用來追查失敗的結帳。共 ${logs.length} 筆。</div>`;
+  if(failed.length){
+    h+=`<div style="font-size:13px;font-weight:700;color:var(--err);margin-bottom:6px">❌ 失敗（${failed.length}筆）— 這些未計入庫存和報表</div>`;
+    failed.forEach(l=>{
+      h+=`<div style="border:1.5px solid var(--err);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff5f5">
+        <div style="font-size:12px;color:var(--muted)">${fmtDT(l.ts)} · 👤${esc(l.operator||'-')}</div>
+        <div style="font-size:13px;font-weight:600;margin:4px 0">${esc(l.items)}</div>
+        <div style="font-size:12px">NT$${l.total} · 錯誤：${esc(l.err||'未知')}</div>
+      </div>`;
+    });
+  }
+  if(pending.length){
+    h+=`<div style="font-size:13px;font-weight:700;color:var(--warn);margin:8px 0 6px">⏳ 狀態不明（${pending.length}筆）— 可能是舊版留下</div>`;
+    pending.forEach(l=>{
+      h+=`<div style="border:1.5px solid var(--warn);border-radius:10px;padding:10px;margin-bottom:8px;background:#fffbf0">
+        <div style="font-size:12px;color:var(--muted)">${fmtDT(l.ts)} · 👤${esc(l.operator||'-')}</div>
+        <div style="font-size:13px;font-weight:600;margin:4px 0">${esc(l.items)}</div>
+        <div style="font-size:12px">NT$${l.total}</div>
+      </div>`;
+    });
+  }
+  if(!failed.length&&!pending.length&&logs.length){
+    h+=`<div style="color:var(--ok);font-size:14px;font-weight:700;padding:12px 0">✅ 所有結帳均已成功</div>`;
+  }
+  if(!logs.length){
+    h+=`<div class="txt-muted">尚無記錄（此版本更新後才開始記錄）</div>`;
+  }
+  // 最近20筆成功記錄
+  const ok=logs.filter(l=>l.status==='ok').slice(0,20);
+  if(ok.length){
+    h+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">`;
+    h+=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">最近成功記錄（最新20筆）</div>`;
+    ok.forEach(l=>{
+      h+=`<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f5f0eb;color:#666">
+        ${fmtDT(l.ts)} · 👤${esc(l.operator||'-')} · ${esc(l.items)} · NT$${l.total}
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+
 async function doAddMat(){
   const nm=(document.getElementById('nm-nm')?.value||'').trim();
   const st=parseFloat(document.getElementById('nm-st')?.value)||0;
